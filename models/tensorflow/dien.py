@@ -31,8 +31,8 @@ def get_dataset_with_negtive_movie(path,batch_size,seed_num):
     tmp_df.fillna(0, inplace=True)
     random.seed(seed_num)
     negtive_movie_df = tmp_df.loc[:, 'userRatedMovie2':'userRatedMovie5'].applymap(lambda x: random.sample(set(range(0, 1001))-set([int(x)]), 1)[0])
-    negtive_movie_df.columns = ['negtive_userRatedMovie2', 'negtive_userRatedMovie3', 'negtive_userRatedMovie4','negtive_userRatedMovie5']
-    tmp_df = pd.concat([tmp_df, negtive_movie_df],axis=1)
+    negtive_movie_df.columns = ['negtive_userRatedMovie2', 'negtive_userRatedMovie3', 'negtive_userRatedMovie4', 'negtive_userRatedMovie5']
+    tmp_df = pd.concat([tmp_df, negtive_movie_df], axis=1)
 
     for i in tmp_df.select_dtypes('O').columns:
         tmp_df[i] = tmp_df[i].astype('str')
@@ -230,7 +230,7 @@ class AUGRU(tf.keras.layers.Layer):
         self.H_t_next = GRU_gate_parameter()     
 
     def call(self, inputs ):
-        gru_hidden_state_inputs,attention_s=inputs
+        gru_hidden_state_inputs, attention_s = inputs
         initializer = tf.keras.initializers.GlorotUniform()
         AUGRU_hidden_state = tf.reshape(initializer(shape=(1, self.embedding_size)), shape=(-1, self.embedding_size))
         for t in range(self.time_length):            
@@ -247,7 +247,7 @@ class AUGRU(tf.keras.layers.Layer):
 
 augru_emb = AUGRU()([user_behaviors_hidden_state, attention_score])
 
-concat_layer = tf.keras.layers.concatenate([ augru_emb,  candidate_emb_layer,user_profile_layer,context_features_layer])
+concat_layer = tf.keras.layers.concatenate([ augru_emb,  candidate_emb_layer, user_profile_layer, context_features_layer])
 
 output_layer = tf.keras.layers.Dense(128)(concat_layer)
 output_layer = tf.keras.layers.PReLU()(output_layer)
@@ -260,10 +260,10 @@ class auxiliary_loss_layer(tf.keras.layers.Layer):
     def __init__(self, time_length=5):
         super().__init__()
         self.time_len = time_length-1        
-        self.Dense_sigmoid_positive32 = tf.keras.layers.Dense(32,activation='sigmoid')
-        self.Dense_sigmoid_positive1 = tf.keras.layers.Dense(1,activation='sigmoid')
-        self.Dense_sigmoid_negitive32 = tf.keras.layers.Dense(32,activation='sigmoid')
-        self.Dense_sigmoid_negitive1 = tf.keras.layers.Dense(1,activation='sigmoid')
+        self.Dense_sigmoid_positive32 = tf.keras.layers.Dense(32, activation='sigmoid')
+        self.Dense_sigmoid_positive1 = tf.keras.layers.Dense(1, activation='sigmoid')
+        self.Dense_sigmoid_negitive32 = tf.keras.layers.Dense(32, activation='sigmoid')
+        self.Dense_sigmoid_negitive1 = tf.keras.layers.Dense(1, activation='sigmoid')
         self.Dot = tf.keras.layers.Dot(axes=(1, 1))
         self.auc = tf.keras.metrics.AUC()
         
@@ -272,11 +272,11 @@ class auxiliary_loss_layer(tf.keras.layers.Layer):
     
     def call(self, inputs,alpha=0.5):
         negtive_movie_t1, postive_movie_t0, movie_hidden_state, y_true, y_pred = inputs
-        positive_concat_layer = tf.keras.layers.concatenate([movie_hidden_state[:, 0:4, :],  postive_movie_t0[:, 1:5, :]])
+        positive_concat_layer = tf.keras.layers.concatenate([movie_hidden_state[:, 0:4, :], postive_movie_t0[:, 1:5, :]])
         positive_concat_layer = self.Dense_sigmoid_positive32(positive_concat_layer)
         positive_loss = self.Dense_sigmoid_positive1(positive_concat_layer)
         
-        negtive_concat_layer = tf.keras.layers.concatenate([movie_hidden_state[:, 0:4, :],  negtive_movie_t1[:, :, :]])
+        negtive_concat_layer = tf.keras.layers.concatenate([movie_hidden_state[:, 0:4, :], negtive_movie_t1[:, :, :]])
         negtive_concat_layer = self.Dense_sigmoid_negitive32(negtive_concat_layer)
         negtive_loss = self.Dense_sigmoid_negitive1(negtive_concat_layer)        
         auxiliary_loss_values = positive_loss + negtive_loss

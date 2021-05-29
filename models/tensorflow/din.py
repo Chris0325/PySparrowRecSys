@@ -60,8 +60,8 @@ inputs = {
 }
 
 # movie id embedding feature
-#movie_col = tf.feature_column.categorical_column_with_identity(key='movieId', num_buckets=1001)
-#movie_emb_col = tf.feature_column.embedding_column(movie_col, EMBEDDING_SIZE)
+# movie_col = tf.feature_column.categorical_column_with_identity(key='movieId', num_buckets=1001)
+# movie_emb_col = tf.feature_column.embedding_column(movie_col, EMBEDDING_SIZE)
 
 # user id embedding feature
 user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)
@@ -93,7 +93,7 @@ recent_rate_col = [
 '''
 
 
-candidate_movie_col = [ tf.feature_column.numeric_column(key='movieId', default_value=0),   ]
+candidate_movie_col = [tf.feature_column.numeric_column(key='movieId', default_value=0)]
 
 recent_rate_col = [
     tf.feature_column.numeric_column(key='userRatedMovie1', default_value=0),
@@ -102,8 +102,6 @@ recent_rate_col = [
     tf.feature_column.numeric_column(key='userRatedMovie4', default_value=0),
     tf.feature_column.numeric_column(key='userRatedMovie5', default_value=0),
 ]
-
-
 
 # user profile
 user_profile = [
@@ -130,7 +128,7 @@ context_features_layer = tf.keras.layers.DenseFeatures(context_features)(inputs)
 
 # Activation Unit
 
-movie_emb_layer = tf.keras.layers.Embedding(input_dim=1001,output_dim=EMBEDDING_SIZE,mask_zero=True)# mask zero
+movie_emb_layer = tf.keras.layers.Embedding(input_dim=1001,output_dim=EMBEDDING_SIZE,mask_zero=True)  # mask zero
 
 user_behaviors_emb_layer = movie_emb_layer(user_behaviors_layer) 
 

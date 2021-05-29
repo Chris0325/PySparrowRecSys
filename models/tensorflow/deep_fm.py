@@ -69,12 +69,12 @@ genre_vocab = ['Film-Noir', 'Action', 'Adventure', 'Horror', 'Romance', 'War', '
 user_genre_col = tf.feature_column.categorical_column_with_vocabulary_list(key="userGenre1",
                                                                            vocabulary_list=genre_vocab)
 user_genre_emb_col = tf.feature_column.embedding_column(user_genre_col, 10)
-user_genre_ind_col = tf.feature_column.indicator_column(user_genre_col) # user genre indicator columns
+user_genre_ind_col = tf.feature_column.indicator_column(user_genre_col)  # user genre indicator columns
 # item genre embedding feature
 item_genre_col = tf.feature_column.categorical_column_with_vocabulary_list(key="movieGenre1",
                                                                            vocabulary_list=genre_vocab)
 item_genre_emb_col = tf.feature_column.embedding_column(item_genre_col, 10)
-item_genre_ind_col = tf.feature_column.indicator_column(item_genre_col) # item genre indicator columns
+item_genre_ind_col = tf.feature_column.indicator_column(item_genre_col)  # item genre indicator columns
 
 # fm first-order term columns: without embedding and concatenate to the output layer directly
 fm_first_order_columns = [movie_ind_col, user_ind_col, user_genre_ind_col, item_genre_ind_col]

@@ -42,7 +42,7 @@ inputs = {
 }
 
 
-# neural cf model arch two. only embedding in each tower, then MLP as the interaction layers
+# neural cf model arch one. only embedding in each tower, then MLP as the interaction layers
 def neural_cf_model_1(feature_inputs, item_feature_columns, user_feature_columns, hidden_units):
     item_tower = tf.keras.layers.DenseFeatures(item_feature_columns)(feature_inputs)
     user_tower = tf.keras.layers.DenseFeatures(user_feature_columns)(feature_inputs)
@@ -54,7 +54,7 @@ def neural_cf_model_1(feature_inputs, item_feature_columns, user_feature_columns
     return neural_cf_model
 
 
-# neural cf model arch one. embedding+MLP in each tower, then dot product layer as the output
+# neural cf model arch two. embedding+MLP in each tower, then dot product layer as the output
 def neural_cf_model_2(feature_inputs, item_feature_columns, user_feature_columns, hidden_units):
     item_tower = tf.keras.layers.DenseFeatures(item_feature_columns)(feature_inputs)
     for num_nodes in hidden_units:

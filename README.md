@@ -4,10 +4,15 @@
 
 ## env
 ```shell
-cd ml_test
+cd PySparrowRecSys
 
 # download sample data and java code
 sh setup.sh
 
+# python3.7 required
+# eg: conda create -n py37 python=3.7
 export PYTHONPATH=$(pwd)
+
+# otherwise, pip install -r requirements.txt
+conda install --yes --file requirements.txt
 ```

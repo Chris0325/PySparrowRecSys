@@ -1,1 +1,2 @@
-data_directory = __file__ + 'src/main/resources/webroot'
+import os
+data_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src/main/resources/webroot'))

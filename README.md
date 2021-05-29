@@ -15,4 +15,6 @@ export PYTHONPATH=$(pwd)
 
 # otherwise, pip install -r requirements.txt
 conda install --yes --file requirements.txt
+
+pip install tensorflow
 ```

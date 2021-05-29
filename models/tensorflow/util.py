@@ -8,6 +8,17 @@ genre_vocab = ['Film-Noir', 'Action', 'Adventure', 'Horror', 'Romance', 'War', '
                'Sci-Fi', 'Drama', 'Thriller',
                'Crime', 'Fantasy', 'Animation', 'IMAX', 'Mystery', 'Children', 'Musical']
 
+GENRE_FEATURES = {
+    'userGenre1': genre_vocab,
+    'userGenre2': genre_vocab,
+    'userGenre3': genre_vocab,
+    'userGenre4': genre_vocab,
+    'userGenre5': genre_vocab,
+    'movieGenre1': genre_vocab,
+    'movieGenre2': genre_vocab,
+    'movieGenre3': genre_vocab
+}
+
 # define input for keras model
 inputs = {
     'movieAvgRating': tf.keras.layers.Input(name='movieAvgRating', shape=(), dtype='float32'),
@@ -32,7 +43,8 @@ inputs = {
     'movieGenre3': tf.keras.layers.Input(name='movieGenre3', shape=(), dtype='string'),
 }
 
-def get_sample_datasets():
+
+def get_sample_datasets(batch_size=16):
     # Training samples path, change to your local path
     training_samples_file_path = tf.keras.utils.get_file("trainingSamples.csv",
                                                          os.path.join(conf.data_directory, "sampledata/trainingSamples.csv"))
@@ -40,18 +52,11 @@ def get_sample_datasets():
     test_samples_file_path = tf.keras.utils.get_file("testSamples.csv",
                                                      os.path.join(conf.data_directory, "sampledata/testSamples.csv"))
 
-    # load sample as tf dataset
-    def get_dataset(file_path):
-        dataset = tf.data.experimental.make_csv_dataset(
-            file_path,
-            batch_size=12,
-            label_name='label',
-            na_value="0",
-            num_epochs=1,
-            ignore_errors=True)
-        return dataset
-
     # split as test dataset and training dataset
-    train_dataset = get_dataset(training_samples_file_path)
-    test_dataset = get_dataset(test_samples_file_path)
+    train_dataset = tf.data.experimental.make_csv_dataset(training_samples_file_path, batch_size=batch_size,
+            label_name='label', na_value="0", num_epochs=1, ignore_errors=True)
+
+    test_dataset = tf.data.experimental.make_csv_dataset(test_samples_file_path, batch_size=batch_size,
+            label_name='label', na_value="0", num_epochs=1, ignore_errors=True)
+
     return train_dataset, test_dataset

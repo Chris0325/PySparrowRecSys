@@ -7,12 +7,12 @@ train_dataset, test_dataset = get_sample_datasets()
 # movie id embedding feature
 movie_col = tf.feature_column.categorical_column_with_identity(key='movieId', num_buckets=1001)
 movie_emb_col = tf.feature_column.embedding_column(movie_col, 10)
-movie_ind_col = tf.feature_column.indicator_column(movie_col) # movid id indicator columns
+movie_ind_col = tf.feature_column.indicator_column(movie_col)  # movie id indicator columns
 
 # user id embedding feature
 user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)
 user_emb_col = tf.feature_column.embedding_column(user_col, 10)
-user_ind_col = tf.feature_column.indicator_column(user_col) # user id indicator columns
+user_ind_col = tf.feature_column.indicator_column(user_col)  # user id indicator columns
 
 # user genre embedding feature
 user_genre_col = tf.feature_column.categorical_column_with_vocabulary_list(key="userGenre1",

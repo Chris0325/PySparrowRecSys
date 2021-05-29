@@ -13,7 +13,7 @@ train_dataset, test_dataset = get_sample_datasets()
 # movie id embedding feature
 movie_col = tf.feature_column.categorical_column_with_identity(key='movieId', num_buckets=1001)
 movie_emb_col = tf.feature_column.embedding_column(movie_col, 10)
-movie_ind_col = tf.feature_column.indicator_column(movie_col)  # movid id indicator columns
+movie_ind_col = tf.feature_column.indicator_column(movie_col)  # movie id indicator columns
 
 # user id embedding feature
 user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)
@@ -47,8 +47,8 @@ first_order_cat_feature = tf.keras.layers.DenseFeatures(cat_columns)(inputs)
 first_order_cat_feature = tf.keras.layers.Dense(1, activation=None)(first_order_cat_feature)
 first_order_deep_feature = tf.keras.layers.DenseFeatures(deep_columns)(inputs)
 first_order_deep_feature = tf.keras.layers.Dense(1, activation=None)(first_order_deep_feature)
-## first order feature
 
+# first order feature
 first_order_feature = tf.keras.layers.Add()([first_order_cat_feature, first_order_deep_feature])
 
 second_order_cat_columns_emb = [tf.keras.layers.DenseFeatures([item_genre_emb_col])(inputs),
@@ -68,7 +68,7 @@ second_order_deep_columns = tf.keras.layers.Dense(64, activation=None)(second_or
 second_order_deep_columns = tf.keras.layers.Reshape((-1, 64))(second_order_deep_columns)
 second_order_fm_feature = tf.keras.layers.Concatenate(axis=1)(second_order_cat_columns + [second_order_deep_columns])
 
-## second_order_deep_feature
+# second_order_deep_feature
 deep_feature = tf.keras.layers.Flatten()(second_order_fm_feature)
 deep_feature = tf.keras.layers.Dense(32, activation='relu')(deep_feature)
 deep_feature = tf.keras.layers.Dense(16, activation='relu')(deep_feature)
@@ -96,7 +96,7 @@ second_order_sum_feature = ReduceLayer(1)(second_order_fm_feature)
 second_order_sum_square_feature = tf.keras.layers.multiply([second_order_sum_feature, second_order_sum_feature])
 second_order_square_feature = tf.keras.layers.multiply([second_order_fm_feature, second_order_fm_feature])
 second_order_square_sum_feature = ReduceLayer(1)(second_order_square_feature)
-## second_order_fm_feature
+# second_order_fm_feature
 second_order_fm_feature = tf.keras.layers.subtract([second_order_sum_square_feature, second_order_square_sum_feature])
 
 concatenated_outputs = tf.keras.layers.Concatenate(axis=1)([first_order_feature, second_order_fm_feature, deep_feature])

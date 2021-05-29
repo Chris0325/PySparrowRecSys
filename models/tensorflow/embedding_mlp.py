@@ -1,19 +1,8 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, genre_vocab
+from util import get_sample_datasets, GENRE_FEATURES
 
 train_dataset, test_dataset = get_sample_datasets()
-
-GENRE_FEATURES = {
-    'userGenre1': genre_vocab,
-    'userGenre2': genre_vocab,
-    'userGenre3': genre_vocab,
-    'userGenre4': genre_vocab,
-    'userGenre5': genre_vocab,
-    'movieGenre1': genre_vocab,
-    'movieGenre2': genre_vocab,
-    'movieGenre3': genre_vocab
-}
 
 # all categorical features
 categorical_columns = []

@@ -26,7 +26,7 @@ test_samples_file_path = tf.keras.utils.get_file("testSamples.csv",
                                                  os.path.join(conf.data_directory, "sampledata/testSamples.csv"))
 
 
-def get_dataset_with_negtive_movie(path,batch_size,seed_num):
+def get_dataset_with_negtive_movie(path, batch_size, seed_num):
     tmp_df = pd.read_csv(path)
     tmp_df.fillna(0, inplace=True)
     random.seed(seed_num)

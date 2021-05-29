@@ -1,5 +1,7 @@
+import os
 import tensorflow as tf
 
+import conf
 from util import get_sample_datasets
 
 train_dataset, test_dataset = get_sample_datasets()
@@ -74,7 +76,7 @@ for prediction, goodRating in zip(predictions[:12], list(test_dataset)[0][1][:12
 
 tf.keras.models.save_model(
     model,
-    "file:///Users/zhewang/Workspace/SparrowRecSys/src/main/resources/webroot/modeldata/neuralcf/002",
+    os.path.join(conf.data_directory, "modeldata/neuralcf/002"),
     overwrite=True,
     include_optimizer=True,
     save_format=None,

@@ -2,11 +2,11 @@
 
 > This repo is reorganized from [wzhe06's repo: SparrowRecSys](https://github.com/wzhe06/SparrowRecSys), any suggestions are welcome!
 
-# 环境
+## env
 ```shell
 cd ml_test
 
-# 下载数据与java代码
+# download sample data and java code
 sh setup.sh
 
 export PYTHONPATH=$(pwd)

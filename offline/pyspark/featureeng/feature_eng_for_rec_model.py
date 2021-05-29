@@ -139,11 +139,14 @@ def splitAndSaveTrainingTestSamplesByTimeStamp(samplesWithUserFeatures, file_pat
 
 
 if __name__ == '__main__':
-    conf = SparkConf().setAppName('featureEngineering').setMaster('local')
-    spark = SparkSession.builder.config(conf=conf).getOrCreate()
-    file_path = 'file:///Users/chunyu10/working/SparrowRecSys/src/main/resources'
-    movieResourcesPath = file_path + "/webroot/sampledata/movies.csv"
-    ratingsResourcesPath = file_path + "/webroot/sampledata/ratings.csv"
+    import os
+    import conf
+
+    spark_conf = SparkConf().setAppName('featureEngineering').setMaster('local')
+    spark = SparkSession.builder.config(conf=spark_conf).getOrCreate()
+
+    movieResourcesPath = os.path.join(conf.data_directory, "sampledata/movies.csv")
+    ratingsResourcesPath = os.path.join(conf.data_directory, "sampledata/ratings.csv")
     movieSamples = spark.read.format('csv').option('header', 'true').load(movieResourcesPath)
     ratingSamples = spark.read.format('csv').option('header', 'true').load(ratingsResourcesPath)
     ratingSamplesWithLabel = addSampleLabel(ratingSamples)
@@ -151,5 +154,5 @@ if __name__ == '__main__':
     samplesWithMovieFeatures = addMovieFeatures(movieSamples, ratingSamplesWithLabel)
     samplesWithUserFeatures = addUserFeatures(samplesWithMovieFeatures)
     # save samples as csv format
-    splitAndSaveTrainingTestSamples(samplesWithUserFeatures, file_path + "/webroot/sampledata")
+    splitAndSaveTrainingTestSamples(samplesWithUserFeatures, os.path.join(conf.data_directory, "sampledata"))
     # splitAndSaveTrainingTestSamplesByTimeStamp(samplesWithUserFeatures, file_path + "/webroot/sampledata")

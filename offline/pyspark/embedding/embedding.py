@@ -1,4 +1,3 @@
-import os
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
@@ -184,18 +183,20 @@ def generateUserEmb(spark, rawSampleDataPath, model, embLength, embOutputPath, s
 
 
 if __name__ == '__main__':
-    conf = SparkConf().setAppName('ctrModel').setMaster('local')
-    spark = SparkSession.builder.config(conf=conf).getOrCreate()
+    import os
+    import conf
+
+    spark_conf = SparkConf().setAppName('ctrModel').setMaster('local')
+    spark = SparkSession.builder.config(conf=spark_conf).getOrCreate()
     # Change to your own filepath
-    file_path = 'file:///Users/chunyu10/working/SparrowRecSys/src/main/resources'
-    rawSampleDataPath = file_path + "/webroot/sampledata/ratings.csv"
+    rawSampleDataPath = os.path.join(conf.data_directory, "sampledata/ratings.csv")
     embLength = 10
     samples = processItemSequence(spark, rawSampleDataPath)
     model = trainItem2vec(spark, samples, embLength,
-                          embOutputPath=file_path[7:] + "/webroot/modeldata2/item2vecEmb.csv", saveToRedis=False,
+                          embOutputPath=os.path.join(conf.data_directory, "modeldata2/item2vecEmb.csv"), saveToRedis=False,
                           redisKeyPrefix="i2vEmb")
-    graphEmb(samples, spark, embLength, embOutputFilename=file_path[7:] + "/webroot/modeldata2/itemGraphEmb.csv",
+    graphEmb(samples, spark, embLength, embOutputFilename=os.path.join(conf.data_directory, "modeldata2/itemGraphEmb.csv"),
              saveToRedis=True, redisKeyPrefix="graphEmb")
     generateUserEmb(spark, rawSampleDataPath, model, embLength,
-                    embOutputPath=file_path[7:] + "/webroot/modeldata2/userEmb.csv", saveToRedis=False,
+                    embOutputPath=os.path.join(conf.data_directory, "modeldata2/userEmb.csv"), saveToRedis=False,
                     redisKeyPrefix="uEmb")

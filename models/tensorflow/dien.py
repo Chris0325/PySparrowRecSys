@@ -20,10 +20,10 @@ import conf
 
 # Training samples path, change to your local path
 training_samples_file_path = tf.keras.utils.get_file("trainingSamples.csv",
-                                                     os.path.join(conf.data_directory, "trainingSamples.csv"))
+                                                     os.path.join(conf.data_directory, "sampledata/trainingSamples.csv"))
 # Test samples path, change to your local path
 test_samples_file_path = tf.keras.utils.get_file("testSamples.csv",
-                                                 os.path.join(conf.data_directory, "testSamples.csv"))
+                                                 os.path.join(conf.data_directory, "sampledata/testSamples.csv"))
 
 
 def get_dataset_with_negtive_movie(path,batch_size,seed_num):

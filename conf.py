@@ -1,1 +1,1 @@
-data_directory = __file__ + 'src/main/resources/webroot/sampledata'
+data_directory = __file__ + 'src/main/resources/webroot'

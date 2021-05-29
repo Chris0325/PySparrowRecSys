@@ -1,17 +1,19 @@
-from pyspark import SparkConf
-from pyspark.ml.evaluation import RegressionEvaluator
-from pyspark.ml.recommendation import ALS
-from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
-from pyspark.sql import SparkSession
-from pyspark.sql.types import *
-from pyspark.sql import functions as F
-
 if __name__ == '__main__':
-    conf = SparkConf().setAppName('collaborativeFiltering').setMaster('local')
-    spark = SparkSession.builder.config(conf=conf).getOrCreate()
-    #/Users/zhewang/Workspace/SparrowRecSys/src/main/resources/webroot/modeldata
-    file_path = 'file:///Users/chunyu10/working/SparrowRecSys/src/main/resources'
-    ratingResourcesPath = file_path + '/webroot/sampledata/ratings.csv'
+    import os
+    from pyspark import SparkConf
+    from pyspark.ml.evaluation import RegressionEvaluator
+    from pyspark.ml.recommendation import ALS
+    from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
+    from pyspark.sql import SparkSession
+    from pyspark.sql.types import *
+    from pyspark.sql import functions as F
+
+    import conf
+
+    spark_conf = SparkConf().setAppName('collaborativeFiltering').setMaster('local')
+    spark = SparkSession.builder.config(conf=spark_conf).getOrCreate()
+
+    ratingResourcesPath = os.path.join(conf.data_directory, 'sampledata/ratings.csv')
     ratingSamples = spark.read.format('csv').option('header', 'true').load(ratingResourcesPath) \
         .withColumn("userIdInt", F.col("userId").cast(IntegerType())) \
         .withColumn("movieIdInt", F.col("movieId").cast(IntegerType())) \

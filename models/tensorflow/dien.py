@@ -16,7 +16,7 @@ import tensorflow as tf
 import random
 
 import conf
-from util import genre_vocab
+from util import genre_vocab, inputs
 
 
 # Training samples path, change to your local path
@@ -54,31 +54,11 @@ RECENT_MOVIES = 5  # userRatedMovie{1-5}
 EMBEDDING_SIZE = 10
 
 # define input for keras model
-inputs = {
-    'movieAvgRating': tf.keras.layers.Input(name='movieAvgRating', shape=(), dtype='float32'),
-    'movieRatingStddev': tf.keras.layers.Input(name='movieRatingStddev', shape=(), dtype='float32'),
-    'movieRatingCount': tf.keras.layers.Input(name='movieRatingCount', shape=(), dtype='int32'),
-    'userAvgRating': tf.keras.layers.Input(name='userAvgRating', shape=(), dtype='float32'),
-    'userRatingStddev': tf.keras.layers.Input(name='userRatingStddev', shape=(), dtype='float32'),
-    'userRatingCount': tf.keras.layers.Input(name='userRatingCount', shape=(), dtype='int32'),
-    'releaseYear': tf.keras.layers.Input(name='releaseYear', shape=(), dtype='int32'),
-
-    'movieId': tf.keras.layers.Input(name='movieId', shape=(), dtype='int32'),
-    'userId': tf.keras.layers.Input(name='userId', shape=(), dtype='int32'),
-    'userRatedMovie1': tf.keras.layers.Input(name='userRatedMovie1', shape=(), dtype='int32'),
+inputs.update({
     'userRatedMovie2': tf.keras.layers.Input(name='userRatedMovie2', shape=(), dtype='int32'),
     'userRatedMovie3': tf.keras.layers.Input(name='userRatedMovie3', shape=(), dtype='int32'),
     'userRatedMovie4': tf.keras.layers.Input(name='userRatedMovie4', shape=(), dtype='int32'),
     'userRatedMovie5': tf.keras.layers.Input(name='userRatedMovie5', shape=(), dtype='int32'),
-
-    'userGenre1': tf.keras.layers.Input(name='userGenre1', shape=(), dtype='string'),
-    'userGenre2': tf.keras.layers.Input(name='userGenre2', shape=(), dtype='string'),
-    'userGenre3': tf.keras.layers.Input(name='userGenre3', shape=(), dtype='string'),
-    'userGenre4': tf.keras.layers.Input(name='userGenre4', shape=(), dtype='string'),
-    'userGenre5': tf.keras.layers.Input(name='userGenre5', shape=(), dtype='string'),
-    'movieGenre1': tf.keras.layers.Input(name='movieGenre1', shape=(), dtype='string'),
-    'movieGenre2': tf.keras.layers.Input(name='movieGenre2', shape=(), dtype='string'),
-    'movieGenre3': tf.keras.layers.Input(name='movieGenre3', shape=(), dtype='string'),
     
     'negtive_userRatedMovie2': tf.keras.layers.Input(name='negtive_userRatedMovie2', shape=(), dtype='int32'),
     'negtive_userRatedMovie3': tf.keras.layers.Input(name='negtive_userRatedMovie3', shape=(), dtype='int32'),
@@ -86,8 +66,7 @@ inputs = {
     'negtive_userRatedMovie5': tf.keras.layers.Input(name='negtive_userRatedMovie5', shape=(), dtype='int32'), 
     
     'label': tf.keras.layers.Input(name='label', shape=(), dtype='int32')
-}
-
+})
 
 # user id embedding feature
 user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)

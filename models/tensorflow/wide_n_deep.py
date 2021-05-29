@@ -1,13 +1,8 @@
 import tensorflow as tf
 
-from util import get_sample_datasets
+from util import get_sample_datasets, genre_vocab
 
 train_dataset, test_dataset = get_sample_datasets()
-
-# genre features vocabulary
-genre_vocab = ['Film-Noir', 'Action', 'Adventure', 'Horror', 'Romance', 'War', 'Comedy', 'Western', 'Documentary',
-               'Sci-Fi', 'Drama', 'Thriller',
-               'Crime', 'Fantasy', 'Animation', 'IMAX', 'Mystery', 'Children', 'Musical']
 
 GENRE_FEATURES = {
     'userGenre1': genre_vocab,

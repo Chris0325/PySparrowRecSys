@@ -3,6 +3,11 @@ import tensorflow as tf
 
 import conf
 
+# genre features vocabulary
+genre_vocab = ['Film-Noir', 'Action', 'Adventure', 'Horror', 'Romance', 'War', 'Comedy', 'Western', 'Documentary',
+               'Sci-Fi', 'Drama', 'Thriller',
+               'Crime', 'Fantasy', 'Animation', 'IMAX', 'Mystery', 'Children', 'Musical']
+
 
 def get_sample_datasets():
     # Training samples path, change to your local path

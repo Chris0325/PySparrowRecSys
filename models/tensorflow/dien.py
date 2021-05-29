@@ -16,6 +16,7 @@ import tensorflow as tf
 import random
 
 import conf
+from util import genre_vocab
 
 
 # Training samples path, change to your local path
@@ -92,10 +93,6 @@ inputs = {
 user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)
 user_emb_col = tf.feature_column.embedding_column(user_col, EMBEDDING_SIZE)
 
-# genre features vocabulary
-genre_vocab = ['Film-Noir', 'Action', 'Adventure', 'Horror', 'Romance', 'War', 'Comedy', 'Western', 'Documentary',
-               'Sci-Fi', 'Drama', 'Thriller',
-               'Crime', 'Fantasy', 'Animation', 'IMAX', 'Mystery', 'Children', 'Musical']
 # user genre embedding feature
 user_genre_col = tf.feature_column.categorical_column_with_vocabulary_list(key="userGenre1",
                                                                            vocabulary_list=genre_vocab)

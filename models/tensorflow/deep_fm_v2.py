@@ -6,7 +6,7 @@ Diff with DeepFM:
 
 import tensorflow as tf
 
-from util import get_sample_datasets
+from util import get_sample_datasets, genre_vocab
 
 train_dataset, test_dataset = get_sample_datasets()
 
@@ -43,11 +43,6 @@ movie_ind_col = tf.feature_column.indicator_column(movie_col)  # movid id indica
 user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)
 user_emb_col = tf.feature_column.embedding_column(user_col, 10)
 user_ind_col = tf.feature_column.indicator_column(user_col)  # user id indicator columns
-
-# genre features vocabulary
-genre_vocab = ['Film-Noir', 'Action', 'Adventure', 'Horror', 'Romance', 'War', 'Comedy', 'Western', 'Documentary',
-               'Sci-Fi', 'Drama', 'Thriller',
-               'Crime', 'Fantasy', 'Animation', 'IMAX', 'Mystery', 'Children', 'Musical']
 
 # user genre embedding feature
 user_genre_col = tf.feature_column.categorical_column_with_vocabulary_list(key="userGenre1",

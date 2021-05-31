@@ -1,7 +1,8 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, inputs, columns, recent_rate_keys
+from util import get_sample_datasets, build_inputs, columns, recent_rate_keys
 
+inputs = build_inputs('din')
 train_dataset, test_dataset = get_sample_datasets()
 
 RECENT_MOVIES = 5  # userRatedMovie{1-5}

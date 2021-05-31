@@ -1,7 +1,8 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, inputs, columns
+from util import get_sample_datasets, build_inputs, columns
 
+inputs = build_inputs('deep_fm')
 train_dataset, test_dataset = get_sample_datasets()
 
 # fm first-order term columns: without embedding and concatenate to the output layer directly

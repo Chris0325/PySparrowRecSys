@@ -2,15 +2,10 @@ import os
 import tensorflow as tf
 
 import conf
-from util import get_sample_datasets, columns
+from util import get_sample_datasets, columns, build_inputs
 
+inputs = build_inputs('neural_cf')
 train_dataset, test_dataset = get_sample_datasets()
-
-# define input for keras model
-inputs = {
-    'movieId': tf.keras.layers.Input(name='movieId', shape=(), dtype='int32'),
-    'userId': tf.keras.layers.Input(name='userId', shape=(), dtype='int32'),
-}
 
 
 # neural cf model arch one. only embedding in each tower, then MLP as the interaction layers

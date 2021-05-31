@@ -1,7 +1,8 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, GENRE_FEATURES, inputs, columns, common_numeric_keys
+from util import get_sample_datasets, GENRE_FEATURES, build_inputs, columns, common_numeric_keys
 
+inputs = build_inputs('wide_n_deep')
 train_dataset, test_dataset = get_sample_datasets()
 
 # cross feature between current movie and user historical movie

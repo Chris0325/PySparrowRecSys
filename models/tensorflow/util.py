@@ -19,42 +19,6 @@ GENRE_FEATURES = {
     'movieGenre3': genre_vocab
 }
 
-# define input for keras model
-inputs = {
-    'movieAvgRating': tf.keras.layers.Input(name='movieAvgRating', shape=(), dtype='float32'),
-    'movieRatingStddev': tf.keras.layers.Input(name='movieRatingStddev', shape=(), dtype='float32'),
-    'movieRatingCount': tf.keras.layers.Input(name='movieRatingCount', shape=(), dtype='int32'),
-    'userAvgRating': tf.keras.layers.Input(name='userAvgRating', shape=(), dtype='float32'),
-    'userRatingStddev': tf.keras.layers.Input(name='userRatingStddev', shape=(), dtype='float32'),
-    'userRatingCount': tf.keras.layers.Input(name='userRatingCount', shape=(), dtype='int32'),
-    'releaseYear': tf.keras.layers.Input(name='releaseYear', shape=(), dtype='int32'),
-
-    'movieId': tf.keras.layers.Input(name='movieId', shape=(), dtype='int32'),
-    'userId': tf.keras.layers.Input(name='userId', shape=(), dtype='int32'),
-    'userRatedMovie1': tf.keras.layers.Input(name='userRatedMovie1', shape=(), dtype='int32'),
-    'userRatedMovie2': tf.keras.layers.Input(name='userRatedMovie2', shape=(), dtype='int32'),
-    'userRatedMovie3': tf.keras.layers.Input(name='userRatedMovie3', shape=(), dtype='int32'),
-    'userRatedMovie4': tf.keras.layers.Input(name='userRatedMovie4', shape=(), dtype='int32'),
-    'userRatedMovie5': tf.keras.layers.Input(name='userRatedMovie5', shape=(), dtype='int32'),
-
-    'userGenre1': tf.keras.layers.Input(name='userGenre1', shape=(), dtype='string'),
-    'userGenre2': tf.keras.layers.Input(name='userGenre2', shape=(), dtype='string'),
-    'userGenre3': tf.keras.layers.Input(name='userGenre3', shape=(), dtype='string'),
-    'userGenre4': tf.keras.layers.Input(name='userGenre4', shape=(), dtype='string'),
-    'userGenre5': tf.keras.layers.Input(name='userGenre5', shape=(), dtype='string'),
-    'movieGenre1': tf.keras.layers.Input(name='movieGenre1', shape=(), dtype='string'),
-    'movieGenre2': tf.keras.layers.Input(name='movieGenre2', shape=(), dtype='string'),
-    'movieGenre3': tf.keras.layers.Input(name='movieGenre3', shape=(), dtype='string'),
-
-    'negtive_userRatedMovie2': tf.keras.layers.Input(name='negtive_userRatedMovie2', shape=(), dtype='int32'),
-    'negtive_userRatedMovie3': tf.keras.layers.Input(name='negtive_userRatedMovie3', shape=(), dtype='int32'),
-    'negtive_userRatedMovie4': tf.keras.layers.Input(name='negtive_userRatedMovie4', shape=(), dtype='int32'),
-    'negtive_userRatedMovie5': tf.keras.layers.Input(name='negtive_userRatedMovie5', shape=(), dtype='int32'),
-
-    'label': tf.keras.layers.Input(name='label', shape=(), dtype='int32')
-}
-
-
 # movie id embedding feature
 movie_col = tf.feature_column.categorical_column_with_identity(key='movieId', num_buckets=1001)
 movie_emb_col = tf.feature_column.embedding_column(movie_col, 10)
@@ -91,6 +55,54 @@ negtive_movie_keys = ['negtive_userRatedMovie' + str(i) for i in range(2, 6)]
 # numerical features
 for k in common_numeric_keys + recent_rate_keys + negtive_movie_keys:
     columns[k] = tf.feature_column.numeric_column(k)
+
+
+# define input for keras model
+def build_inputs(task):
+    inputs = {
+        'movieAvgRating': tf.keras.layers.Input(name='movieAvgRating', shape=(), dtype='float32'),
+        'movieRatingStddev': tf.keras.layers.Input(name='movieRatingStddev', shape=(), dtype='float32'),
+        'movieRatingCount': tf.keras.layers.Input(name='movieRatingCount', shape=(), dtype='int32'),
+        'userAvgRating': tf.keras.layers.Input(name='userAvgRating', shape=(), dtype='float32'),
+        'userRatingStddev': tf.keras.layers.Input(name='userRatingStddev', shape=(), dtype='float32'),
+        'userRatingCount': tf.keras.layers.Input(name='userRatingCount', shape=(), dtype='int32'),
+        'releaseYear': tf.keras.layers.Input(name='releaseYear', shape=(), dtype='int32'),
+
+        'movieId': tf.keras.layers.Input(name='movieId', shape=(), dtype='int32'),
+        'userId': tf.keras.layers.Input(name='userId', shape=(), dtype='int32'),
+        'userRatedMovie1': tf.keras.layers.Input(name='userRatedMovie1', shape=(), dtype='int32'),
+        'userRatedMovie2': tf.keras.layers.Input(name='userRatedMovie2', shape=(), dtype='int32'),
+        'userRatedMovie3': tf.keras.layers.Input(name='userRatedMovie3', shape=(), dtype='int32'),
+        'userRatedMovie4': tf.keras.layers.Input(name='userRatedMovie4', shape=(), dtype='int32'),
+        'userRatedMovie5': tf.keras.layers.Input(name='userRatedMovie5', shape=(), dtype='int32'),
+
+        'userGenre1': tf.keras.layers.Input(name='userGenre1', shape=(), dtype='string'),
+        'userGenre2': tf.keras.layers.Input(name='userGenre2', shape=(), dtype='string'),
+        'userGenre3': tf.keras.layers.Input(name='userGenre3', shape=(), dtype='string'),
+        'userGenre4': tf.keras.layers.Input(name='userGenre4', shape=(), dtype='string'),
+        'userGenre5': tf.keras.layers.Input(name='userGenre5', shape=(), dtype='string'),
+        'movieGenre1': tf.keras.layers.Input(name='movieGenre1', shape=(), dtype='string'),
+        'movieGenre2': tf.keras.layers.Input(name='movieGenre2', shape=(), dtype='string'),
+        'movieGenre3': tf.keras.layers.Input(name='movieGenre3', shape=(), dtype='string'),
+
+        'negtive_userRatedMovie2': tf.keras.layers.Input(name='negtive_userRatedMovie2', shape=(), dtype='int32'),
+        'negtive_userRatedMovie3': tf.keras.layers.Input(name='negtive_userRatedMovie3', shape=(), dtype='int32'),
+        'negtive_userRatedMovie4': tf.keras.layers.Input(name='negtive_userRatedMovie4', shape=(), dtype='int32'),
+        'negtive_userRatedMovie5': tf.keras.layers.Input(name='negtive_userRatedMovie5', shape=(), dtype='int32'),
+
+        'label': tf.keras.layers.Input(name='label', shape=(), dtype='int32')
+    }
+    base_keys = common_numeric_keys + list(GENRE_FEATURES.keys()) + ['movieId', 'userId']
+    if task == 'embedding_mlp':
+        return {k: inputs[k] for k in base_keys}
+    elif task == ['wide_n_deep', 'deep_fm', 'deep_fm_v2']:
+        return {k: inputs[k] for k in base_keys + ['userRatedMovie1']}
+    elif task == 'neural_cf':
+        return {k: inputs[k] for k in ['movieId', 'userId']}
+    elif task == 'din':
+        return {k: inputs[k] for k in base_keys + recent_rate_keys}
+    elif task == 'dien':
+        return {k: inputs[k] for k in base_keys + recent_rate_keys + negtive_movie_keys + ['label']}
 
 
 def get_sample_datasets(batch_size=16):

@@ -1,7 +1,8 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, inputs, columns, common_numeric_keys, GENRE_FEATURES
+from util import get_sample_datasets, build_inputs, columns, common_numeric_keys, GENRE_FEATURES
 
+inputs = build_inputs('embedding_mlp')
 train_dataset, test_dataset = get_sample_datasets()
 
 # embedding + MLP model architecture

@@ -16,7 +16,9 @@ import tensorflow as tf
 import random
 
 import conf
-from util import inputs, columns, recent_rate_keys, negtive_movie_keys
+from util import build_inputs, columns, recent_rate_keys, negtive_movie_keys
+
+inputs = build_inputs('dien')
 
 
 def get_dataset_with_negtive_movie(path, batch_size, seed_num):

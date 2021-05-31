@@ -6,8 +6,9 @@ Diff with DeepFM:
 
 import tensorflow as tf
 
-from util import get_sample_datasets, inputs, columns, common_numeric_keys
+from util import get_sample_datasets, build_inputs, columns, common_numeric_keys
 
+inputs = build_inputs('deep_fm_v2')
 train_dataset, test_dataset = get_sample_datasets()
 
 # fm first-order categorical items

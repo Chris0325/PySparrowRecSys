@@ -54,6 +54,8 @@ recent_rate_keys = ['userRatedMovie' + str(i) for i in range(1, 6)]
 
 negtive_movie_keys = ['negtive_userRatedMovie' + str(i) for i in range(2, 6)]
 
+base_feature_keys = common_numeric_keys + list(GENRE_FEATURES.keys()) + ['movieId', 'userId']
+
 # numerical features
 for k in common_numeric_keys + recent_rate_keys + negtive_movie_keys:
     columns[k] = tf.feature_column.numeric_column(k)
@@ -94,17 +96,17 @@ def build_inputs(task):
 
         'label': tf.keras.layers.Input(name='label', shape=(), dtype='int32')
     }
-    base_keys = common_numeric_keys + list(GENRE_FEATURES.keys()) + ['movieId', 'userId']
+
     if task == 'embedding_mlp':
-        return {k: inputs[k] for k in base_keys}
+        return {k: inputs[k] for k in base_feature_keys}
     elif task in ['wide_n_deep', 'deep_fm', 'deep_fm_v2']:
-        return {k: inputs[k] for k in base_keys + ['userRatedMovie1']}
+        return {k: inputs[k] for k in base_feature_keys + ['userRatedMovie1']}
     elif task == 'neural_cf':
         return {k: inputs[k] for k in ['movieId', 'userId']}
     elif task == 'din':
-        return {k: inputs[k] for k in base_keys + recent_rate_keys}
+        return {k: inputs[k] for k in base_feature_keys + recent_rate_keys}
     elif task == 'dien':
-        return {k: inputs[k] for k in base_keys + recent_rate_keys + negtive_movie_keys + ['label']}
+        return {k: inputs[k] for k in base_feature_keys + recent_rate_keys + negtive_movie_keys + ['label']}
 
 
 def get_sample_datasets(batch_size=16, dien=False):

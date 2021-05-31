@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from util import GENRE_FEATURES, build_inputs, columns, common_numeric_keys, compile_train_evaluate_and_showcase
+from util import build_inputs, columns, compile_train_evaluate_and_showcase, base_feature_keys
 
 inputs = build_inputs('wide_n_deep')
 
@@ -10,7 +10,7 @@ crossed_feature = tf.feature_column.indicator_column(tf.feature_column.crossed_c
 
 # wide and deep model architecture
 # deep part for all input features
-feature_columns = [columns[k] for k in common_numeric_keys + list(GENRE_FEATURES.keys()) + ['movieId', 'userId']]
+feature_columns = [columns[k] for k in base_feature_keys]
 deep = tf.keras.layers.DenseFeatures(feature_columns)(inputs)
 deep = tf.keras.layers.Dense(128, activation='relu')(deep)
 deep = tf.keras.layers.Dense(128, activation='relu')(deep)

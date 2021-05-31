@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, build_inputs, columns, evaluate_and_showcase
+from util import get_sample_datasets, build_inputs, columns, evaluate_and_showcase, common_numeric_keys
 
 inputs = build_inputs('deep_fm')
 train_dataset, test_dataset = get_sample_datasets()
@@ -8,15 +8,7 @@ train_dataset, test_dataset = get_sample_datasets()
 # fm first-order term columns: without embedding and concatenate to the output layer directly
 fm_first_order_columns = [columns['indMovieId'], columns['indUserId'], columns['indUserGenre1'], columns['indMovieGenre1']]
 
-deep_feature_columns = [tf.feature_column.numeric_column('releaseYear'),
-                        tf.feature_column.numeric_column('movieRatingCount'),
-                        tf.feature_column.numeric_column('movieAvgRating'),
-                        tf.feature_column.numeric_column('movieRatingStddev'),
-                        tf.feature_column.numeric_column('userRatingCount'),
-                        tf.feature_column.numeric_column('userAvgRating'),
-                        tf.feature_column.numeric_column('userRatingStddev'),
-                        columns['movieId'],
-                        columns['userId']]
+deep_feature_columns = [columns[k] for k in common_numeric_keys + ['movieId', 'userId']]
 
 item_emb_layer = tf.keras.layers.DenseFeatures([columns['movieId']])(inputs)
 user_emb_layer = tf.keras.layers.DenseFeatures([columns['userId']])(inputs)

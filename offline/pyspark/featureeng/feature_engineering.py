@@ -64,7 +64,7 @@ if __name__ == '__main__':
     spark_conf = SparkConf().setAppName('featureEngineering').setMaster('local')
     spark = SparkSession.builder.config(conf=spark_conf).getOrCreate()
 
-    movieResourcesPath = os.path.join(conf.data_directory, "sampledata/movies.csv")
+    movieResourcesPath = os.path.join(conf.data_directory, "sampledata", "movies.csv")
     movieSamples = spark.read.format('csv').option('header', 'true').load(movieResourcesPath)
     print("Raw Movie Samples:")
     movieSamples.show(10)
@@ -74,6 +74,6 @@ if __name__ == '__main__':
     print("MultiHotEncoder Example:")
     multiHotEncoderExample(movieSamples)
     print("Numerical features Example:")
-    ratingsResourcesPath = os.path.join(conf.data_directory, "sampledata/ratings.csv")
+    ratingsResourcesPath = os.path.join(conf.data_directory, "sampledata", "ratings.csv")
     ratingSamples = spark.read.format('csv').option('header', 'true').load(ratingsResourcesPath)
     ratingFeatures(ratingSamples)

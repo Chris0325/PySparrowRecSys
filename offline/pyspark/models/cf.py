@@ -13,7 +13,7 @@ if __name__ == '__main__':
     spark_conf = SparkConf().setAppName('collaborativeFiltering').setMaster('local')
     spark = SparkSession.builder.config(conf=spark_conf).getOrCreate()
 
-    ratingResourcesPath = os.path.join(conf.data_directory, 'sampledata/ratings.csv')
+    ratingResourcesPath = os.path.join(conf.data_directory, 'sampledata', 'ratings.csv')
     ratingSamples = spark.read.format('csv').option('header', 'true').load(ratingResourcesPath) \
         .withColumn("userIdInt", F.col("userId").cast(IntegerType())) \
         .withColumn("movieIdInt", F.col("movieId").cast(IntegerType())) \

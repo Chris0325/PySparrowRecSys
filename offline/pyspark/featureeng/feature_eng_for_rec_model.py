@@ -1,4 +1,5 @@
-from pyspark import SparkContext, SparkConf
+import os
+from pyspark import SparkConf
 from pyspark.sql import SparkSession
 import pyspark.sql as sql
 from pyspark.sql.functions import *
@@ -116,12 +117,8 @@ def addUserFeatures(samplesWithMovieFeatures):
 def splitAndSaveTrainingTestSamples(samplesWithUserFeatures, file_path):
     smallSamples = samplesWithUserFeatures.sample(0.1)
     training, test = smallSamples.randomSplit((0.8, 0.2))
-    trainingSavePath = file_path + '/trainingSamples'
-    testSavePath = file_path + '/testSamples'
-    training.repartition(1).write.option("header", "true").mode('overwrite') \
-        .csv(trainingSavePath)
-    test.repartition(1).write.option("header", "true").mode('overwrite') \
-        .csv(testSavePath)
+    training.repartition(1).write.option("header", "true").mode('overwrite').csv(os.path.join(file_path, 'trainingSamples'))
+    test.repartition(1).write.option("header", "true").mode('overwrite').csv(os.path.join(file_path, '/testSamples'))
 
 
 def splitAndSaveTrainingTestSamplesByTimeStamp(samplesWithUserFeatures, file_path):
@@ -139,14 +136,13 @@ def splitAndSaveTrainingTestSamplesByTimeStamp(samplesWithUserFeatures, file_pat
 
 
 if __name__ == '__main__':
-    import os
     import conf
 
     spark_conf = SparkConf().setAppName('featureEngineering').setMaster('local')
     spark = SparkSession.builder.config(conf=spark_conf).getOrCreate()
 
-    movieResourcesPath = os.path.join(conf.data_directory, "sampledata/movies.csv")
-    ratingsResourcesPath = os.path.join(conf.data_directory, "sampledata/ratings.csv")
+    movieResourcesPath = os.path.join(conf.data_directory, "sampledata", "movies.csv")
+    ratingsResourcesPath = os.path.join(conf.data_directory, "sampledata", "ratings.csv")
     movieSamples = spark.read.format('csv').option('header', 'true').load(movieResourcesPath)
     ratingSamples = spark.read.format('csv').option('header', 'true').load(ratingsResourcesPath)
     ratingSamplesWithLabel = addSampleLabel(ratingSamples)

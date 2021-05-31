@@ -2,17 +2,9 @@ import os
 import tensorflow as tf
 
 import conf
-from util import get_sample_datasets
+from util import get_sample_datasets, columns
 
 train_dataset, test_dataset = get_sample_datasets()
-
-# movie id embedding feature
-movie_col = tf.feature_column.categorical_column_with_identity(key='movieId', num_buckets=1001)
-movie_emb_col = tf.feature_column.embedding_column(movie_col, 10)
-
-# user id embedding feature
-user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)
-user_emb_col = tf.feature_column.embedding_column(user_col, 10)
 
 # define input for keras model
 inputs = {
@@ -51,7 +43,7 @@ def neural_cf_model_2(feature_inputs, item_feature_columns, user_feature_columns
 
 
 # neural cf model architecture
-model = neural_cf_model_1(inputs, [movie_emb_col], [user_emb_col], [10, 10])
+model = neural_cf_model_1(inputs, [columns['movieId']], [columns['userId']], [10, 10])
 
 # compile the model, set loss function, optimizer and evaluation metrics
 model.compile(
@@ -64,19 +56,16 @@ model.fit(train_dataset, epochs=5)
 
 # evaluate the model
 test_loss, test_accuracy, test_roc_auc, test_pr_auc = model.evaluate(test_dataset)
-print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.format(test_loss, test_accuracy,
-                                                                                   test_roc_auc, test_pr_auc))
+print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.format(test_loss, test_accuracy, test_roc_auc, test_pr_auc))
 
 # print some predict results
 predictions = model.predict(test_dataset)
 for prediction, goodRating in zip(predictions[:12], list(test_dataset)[0][1][:12]):
-    print("Predicted good rating: {:.2%}".format(prediction[0]),
-          " | Actual rating label: ",
-          ("Good Rating" if bool(goodRating) else "Bad Rating"))
+    print("Predicted good rating: {:.2%}".format(prediction[0]), " | Actual rating label: ", ("Good Rating" if bool(goodRating) else "Bad Rating"))
 
 tf.keras.models.save_model(
     model,
-    os.path.join(conf.data_directory, "modeldata/neuralcf/002"),
+    os.path.join(conf.data_directory, "modeldata", "neuralcf", "002"),
     overwrite=True,
     include_optimizer=True,
     save_format=None,

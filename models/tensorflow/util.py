@@ -32,6 +32,10 @@ inputs = {
     'movieId': tf.keras.layers.Input(name='movieId', shape=(), dtype='int32'),
     'userId': tf.keras.layers.Input(name='userId', shape=(), dtype='int32'),
     'userRatedMovie1': tf.keras.layers.Input(name='userRatedMovie1', shape=(), dtype='int32'),
+    'userRatedMovie2': tf.keras.layers.Input(name='userRatedMovie2', shape=(), dtype='int32'),
+    'userRatedMovie3': tf.keras.layers.Input(name='userRatedMovie3', shape=(), dtype='int32'),
+    'userRatedMovie4': tf.keras.layers.Input(name='userRatedMovie4', shape=(), dtype='int32'),
+    'userRatedMovie5': tf.keras.layers.Input(name='userRatedMovie5', shape=(), dtype='int32'),
 
     'userGenre1': tf.keras.layers.Input(name='userGenre1', shape=(), dtype='string'),
     'userGenre2': tf.keras.layers.Input(name='userGenre2', shape=(), dtype='string'),
@@ -41,7 +45,52 @@ inputs = {
     'movieGenre1': tf.keras.layers.Input(name='movieGenre1', shape=(), dtype='string'),
     'movieGenre2': tf.keras.layers.Input(name='movieGenre2', shape=(), dtype='string'),
     'movieGenre3': tf.keras.layers.Input(name='movieGenre3', shape=(), dtype='string'),
+
+    'negtive_userRatedMovie2': tf.keras.layers.Input(name='negtive_userRatedMovie2', shape=(), dtype='int32'),
+    'negtive_userRatedMovie3': tf.keras.layers.Input(name='negtive_userRatedMovie3', shape=(), dtype='int32'),
+    'negtive_userRatedMovie4': tf.keras.layers.Input(name='negtive_userRatedMovie4', shape=(), dtype='int32'),
+    'negtive_userRatedMovie5': tf.keras.layers.Input(name='negtive_userRatedMovie5', shape=(), dtype='int32'),
+
+    'label': tf.keras.layers.Input(name='label', shape=(), dtype='int32')
 }
+
+
+# movie id embedding feature
+movie_col = tf.feature_column.categorical_column_with_identity(key='movieId', num_buckets=1001)
+movie_emb_col = tf.feature_column.embedding_column(movie_col, 10)
+movie_ind_col = tf.feature_column.indicator_column(movie_col)  # dense movie id indicator column
+
+# user id embedding feature
+user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)
+user_emb_col = tf.feature_column.embedding_column(user_col, 10)
+user_ind_col = tf.feature_column.indicator_column(user_col)  # dense, user id indicator column
+
+columns = {
+    'userId': user_emb_col,
+    'indUserId': user_ind_col,
+    'movideId': movie_emb_col,
+    'indMovieId': movie_ind_col,
+    'label': tf.feature_column.numeric_column(key='label', default_value=0),
+}
+# genre embedding features
+for feature, vocab in GENRE_FEATURES.items():
+    cat_col = tf.feature_column.categorical_column_with_vocabulary_list(
+        key=feature, vocabulary_list=vocab)
+    emb_col = tf.feature_column.embedding_column(cat_col, 10)
+    ind_col = tf.feature_column.indicator_column(emb_col)  # dense indicator column
+    columns[feature] = emb_col
+    columns['ind' + feature.capitalize()] = ind_col
+
+common_numeric_keys = ['releaseYear', 'movieRatingCount', 'movieAvgRating', 'movieRatingStddev', 'userRatingCount',
+                       'userAvgRating', 'userRatingStddev']
+
+recent_rate_keys = ['userRatedMovie' + str(i) for i in range(1, 6)]
+
+negtive_movie_keys = ['negtive_userRatedMovie' + str(i) for i in range(2, 6)]
+
+# numerical features
+for k in common_numeric_keys + recent_rate_keys + negtive_movie_keys:
+    columns[k] = tf.feature_column.numeric_column(k)
 
 
 def get_sample_datasets(batch_size=16):

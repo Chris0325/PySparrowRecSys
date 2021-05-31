@@ -6,42 +6,14 @@ Diff with DeepFM:
 
 import tensorflow as tf
 
-from util import get_sample_datasets, genre_vocab, inputs
+from util import get_sample_datasets, inputs, columns, common_numeric_keys
 
 train_dataset, test_dataset = get_sample_datasets()
 
-# movie id embedding feature
-movie_col = tf.feature_column.categorical_column_with_identity(key='movieId', num_buckets=1001)
-movie_emb_col = tf.feature_column.embedding_column(movie_col, 10)
-movie_ind_col = tf.feature_column.indicator_column(movie_col)  # movie id indicator columns
-
-# user id embedding feature
-user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)
-user_emb_col = tf.feature_column.embedding_column(user_col, 10)
-user_ind_col = tf.feature_column.indicator_column(user_col)  # user id indicator columns
-
-# user genre embedding feature
-user_genre_col = tf.feature_column.categorical_column_with_vocabulary_list(key="userGenre1",
-                                                                           vocabulary_list=genre_vocab)
-user_genre_ind_col = tf.feature_column.indicator_column(user_genre_col)
-user_genre_emb_col = tf.feature_column.embedding_column(user_genre_col, 10)
-
-# item genre embedding feature
-item_genre_col = tf.feature_column.categorical_column_with_vocabulary_list(key="movieGenre1",
-                                                                           vocabulary_list=genre_vocab)
-item_genre_ind_col = tf.feature_column.indicator_column(item_genre_col)
-item_genre_emb_col = tf.feature_column.embedding_column(item_genre_col, 10)
-
 # fm first-order categorical items
-cat_columns = [movie_ind_col, user_ind_col, user_genre_ind_col, item_genre_ind_col]
+cat_columns = [columns['indMovieId'], columns['indUserId'], columns['indUserGenre1'], columns['indMovieGenre1']]
 
-deep_columns = [tf.feature_column.numeric_column('releaseYear'),
-                tf.feature_column.numeric_column('movieRatingCount'),
-                tf.feature_column.numeric_column('movieAvgRating'),
-                tf.feature_column.numeric_column('movieRatingStddev'),
-                tf.feature_column.numeric_column('userRatingCount'),
-                tf.feature_column.numeric_column('userAvgRating'),
-                tf.feature_column.numeric_column('userRatingStddev')]
+deep_columns = [columns[k] for k in common_numeric_keys]
 
 first_order_cat_feature = tf.keras.layers.DenseFeatures(cat_columns)(inputs)
 first_order_cat_feature = tf.keras.layers.Dense(1, activation=None)(first_order_cat_feature)
@@ -51,10 +23,10 @@ first_order_deep_feature = tf.keras.layers.Dense(1, activation=None)(first_order
 # first order feature
 first_order_feature = tf.keras.layers.Add()([first_order_cat_feature, first_order_deep_feature])
 
-second_order_cat_columns_emb = [tf.keras.layers.DenseFeatures([item_genre_emb_col])(inputs),
-                                tf.keras.layers.DenseFeatures([movie_emb_col])(inputs),
-                                tf.keras.layers.DenseFeatures([user_genre_emb_col])(inputs),
-                                tf.keras.layers.DenseFeatures([user_emb_col])(inputs)
+second_order_cat_columns_emb = [tf.keras.layers.DenseFeatures([columns['movieGenre1']])(inputs),
+                                tf.keras.layers.DenseFeatures([columns['movieId']])(inputs),
+                                tf.keras.layers.DenseFeatures([columns['userGenre1']])(inputs),
+                                tf.keras.layers.DenseFeatures([columns['userId']])(inputs)
                                 ]
 
 second_order_cat_columns = []
@@ -120,6 +92,4 @@ print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.form
 # print some predict results
 predictions = model.predict(test_dataset)
 for prediction, goodRating in zip(predictions[:12], list(test_dataset)[0][1][:12]):
-    print("Predicted good rating: {:.2%}".format(prediction[0]),
-          " | Actual rating label: ",
-          ("Good Rating" if bool(goodRating) else "Bad Rating"))
+    print("Predicted good rating: {:.2%}".format(prediction[0]), " | Actual rating label: ", ("Good Rating" if bool(goodRating) else "Bad Rating"))

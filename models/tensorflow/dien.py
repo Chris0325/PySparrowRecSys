@@ -16,14 +16,14 @@ import tensorflow as tf
 import random
 
 import conf
-from util import genre_vocab, inputs
+from util import inputs, columns, recent_rate_keys, negtive_movie_keys
 
 
 def get_dataset_with_negtive_movie(path, batch_size, seed_num):
     tmp_df = pd.read_csv(path)
     tmp_df.fillna(0, inplace=True)
     random.seed(seed_num)
-    negtive_movie_df = tmp_df.loc[:, 'userRatedMovie2':'userRatedMovie5'].applymap(lambda x: random.sample(set(range(0, 1001))-set([int(x)]), 1)[0])
+    negtive_movie_df = tmp_df.loc[:, 'userRatedMovie2':'userRatedMovie5'].applymap(lambda x: random.sample(set(range(0, 1001)) - set([int(x)]), 1)[0])
     negtive_movie_df.columns = ['negtive_userRatedMovie2', 'negtive_userRatedMovie3', 'negtive_userRatedMovie4', 'negtive_userRatedMovie5']
     tmp_df = pd.concat([tmp_df, negtive_movie_df], axis=1)
 
@@ -38,90 +38,31 @@ def get_dataset_with_negtive_movie(path, batch_size, seed_num):
     return dataset
 
 
-train_dataset = get_dataset_with_negtive_movie(os.path.join(conf.data_directory, "sampledata", "trainingSamples.csv"), 12, seed_num=2020)
-test_dataset = get_dataset_with_negtive_movie(os.path.join(conf.data_directory, "sampledata", "testSamples.csv"), 12, seed_num=2021)
-
-# Config
-RECENT_MOVIES = 5  # userRatedMovie{1-5}
-EMBEDDING_SIZE = 10
-
-# define input for keras model
-inputs.update({
-    'userRatedMovie2': tf.keras.layers.Input(name='userRatedMovie2', shape=(), dtype='int32'),
-    'userRatedMovie3': tf.keras.layers.Input(name='userRatedMovie3', shape=(), dtype='int32'),
-    'userRatedMovie4': tf.keras.layers.Input(name='userRatedMovie4', shape=(), dtype='int32'),
-    'userRatedMovie5': tf.keras.layers.Input(name='userRatedMovie5', shape=(), dtype='int32'),
-    
-    'negtive_userRatedMovie2': tf.keras.layers.Input(name='negtive_userRatedMovie2', shape=(), dtype='int32'),
-    'negtive_userRatedMovie3': tf.keras.layers.Input(name='negtive_userRatedMovie3', shape=(), dtype='int32'),
-    'negtive_userRatedMovie4': tf.keras.layers.Input(name='negtive_userRatedMovie4', shape=(), dtype='int32'),
-    'negtive_userRatedMovie5': tf.keras.layers.Input(name='negtive_userRatedMovie5', shape=(), dtype='int32'), 
-    
-    'label': tf.keras.layers.Input(name='label', shape=(), dtype='int32')
-})
-
-# user id embedding feature
-user_col = tf.feature_column.categorical_column_with_identity(key='userId', num_buckets=30001)
-user_emb_col = tf.feature_column.embedding_column(user_col, EMBEDDING_SIZE)
-
-# user genre embedding feature
-user_genre_col = tf.feature_column.categorical_column_with_vocabulary_list(key="userGenre1",
-                                                                           vocabulary_list=genre_vocab)
-user_genre_emb_col = tf.feature_column.embedding_column(user_genre_col, EMBEDDING_SIZE)
-# item genre embedding feature
-item_genre_col = tf.feature_column.categorical_column_with_vocabulary_list(key="movieGenre1",
-                                                                           vocabulary_list=genre_vocab)
-item_genre_emb_col = tf.feature_column.embedding_column(item_genre_col, EMBEDDING_SIZE)
+train_dataset = get_dataset_with_negtive_movie(os.path.join(conf.data_directory, "sampledata", "trainingSamples.csv"), 16, seed_num=2020)
+test_dataset = get_dataset_with_negtive_movie(os.path.join(conf.data_directory, "sampledata", "testSamples.csv"), 16, seed_num=2021)
 
 candidate_movie_col = [tf.feature_column.numeric_column(key='movieId', default_value=0)]
 
 # user behaviors
-recent_rate_col = [
-    tf.feature_column.numeric_column(key='userRatedMovie1', default_value=0),
-    tf.feature_column.numeric_column(key='userRatedMovie2', default_value=0),
-    tf.feature_column.numeric_column(key='userRatedMovie3', default_value=0),
-    tf.feature_column.numeric_column(key='userRatedMovie4', default_value=0),
-    tf.feature_column.numeric_column(key='userRatedMovie5', default_value=0),
-]
+recent_rate_col = [columns[k] for k in recent_rate_keys]
 
-
-negtive_movie_col = [
-    tf.feature_column.numeric_column(key='negtive_userRatedMovie2', default_value=0),
-    tf.feature_column.numeric_column(key='negtive_userRatedMovie3', default_value=0),
-    tf.feature_column.numeric_column(key='negtive_userRatedMovie4', default_value=0),
-    tf.feature_column.numeric_column(key='negtive_userRatedMovie5', default_value=0),
-]
+negtive_movie_col = [columns[k] for k in negtive_movie_keys]
 
 # user profile
-user_profile = [
-    user_emb_col,
-    user_genre_emb_col,
-    tf.feature_column.numeric_column('userRatingCount'),
-    tf.feature_column.numeric_column('userAvgRating'),
-    tf.feature_column.numeric_column('userRatingStddev'),
-]
+user_profile = [columns[k] for k in ['userId', 'userGenre1', 'userRatingCount', 'userAvgRating', 'userRatingStddev']]
 
 # context features
-context_features = [
-    item_genre_emb_col,
-    tf.feature_column.numeric_column('releaseYear'),
-    tf.feature_column.numeric_column('movieRatingCount'),
-    tf.feature_column.numeric_column('movieAvgRating'),
-    tf.feature_column.numeric_column('movieRatingStddev'),
-]
-
-label = [tf.feature_column.numeric_column(key='label', default_value=0)]
-
+context_features = [columns[k] for k in ['movieGenre1', 'releaseYear', 'movieRatingCount', 'movieAvgRating', 'movieRatingStddev']]
 
 candidate_layer = tf.keras.layers.DenseFeatures(candidate_movie_col)(inputs)
 user_behaviors_layer = tf.keras.layers.DenseFeatures(recent_rate_col)(inputs)
 negtive_movie_layer = tf.keras.layers.DenseFeatures(negtive_movie_col)(inputs)
 user_profile_layer = tf.keras.layers.DenseFeatures(user_profile)(inputs)
 context_features_layer = tf.keras.layers.DenseFeatures(context_features)(inputs)
-y_true = tf.keras.layers.DenseFeatures(label)(inputs)
+y_true = tf.keras.layers.DenseFeatures([columns['label']])(inputs)
 
 # Activation Unit
-movie_emb_layer = tf.keras.layers.Embedding(input_dim=1001, output_dim=EMBEDDING_SIZE, mask_zero=True)  # mask zero
+movie_emb_layer = tf.keras.layers.Embedding(input_dim=1001, output_dim=10, mask_zero=True)  # mask zero
 
 user_behaviors_emb_layer = movie_emb_layer(user_behaviors_layer) 
 candidate_emb_layer = movie_emb_layer(candidate_layer) 
@@ -129,11 +70,11 @@ negtive_movie_emb_layer = movie_emb_layer(negtive_movie_layer)
 
 candidate_emb_layer = tf.squeeze(candidate_emb_layer, axis=1)
 
-user_behaviors_hidden_state=tf.keras.layers.GRU(EMBEDDING_SIZE, return_sequences=True)(user_behaviors_emb_layer)
+user_behaviors_hidden_state=tf.keras.layers.GRU(10, return_sequences=True)(user_behaviors_emb_layer)
 
 
 class attention(tf.keras.layers.Layer):
-    def __init__(self, embedding_size=EMBEDDING_SIZE, time_length=5, ):
+    def __init__(self, embedding_size=10, time_length=5, ):
         super().__init__()
         self.time_length = time_length  
         self.embedding_size = embedding_size
@@ -149,9 +90,9 @@ class attention(tf.keras.layers.Layer):
         pass
     
     def call(self, inputs):
-        candidate_inputs,gru_hidden_state=inputs
+        candidate_inputs, gru_hidden_state = inputs
         repeated_candidate_layer = self.RepeatVector_time(candidate_inputs)
-        activation_product_layer = self.Multiply([gru_hidden_state,repeated_candidate_layer]) 
+        activation_product_layer = self.Multiply([gru_hidden_state, repeated_candidate_layer])
         activation_unit = self.Dense32(activation_product_layer)
         activation_unit = self.Dense1(activation_unit)  
         Repeat_attention_s = tf.squeeze(activation_unit, axis=2)
@@ -165,11 +106,11 @@ attention_score = attention()([candidate_emb_layer, user_behaviors_hidden_state]
 
 
 class GRU_gate_parameter(tf.keras.layers.Layer):
-    def __init__(self, embedding_size=EMBEDDING_SIZE):
+    def __init__(self, embedding_size=10):
         super().__init__()
         self.embedding_size = embedding_size        
         self.Multiply = tf.keras.layers.Multiply()
-        self.Dense_sigmoid = tf.keras.layers.Dense(self.embedding_size,activation='sigmoid')
+        self.Dense_sigmoid = tf.keras.layers.Dense(self.embedding_size, activation='sigmoid')
         self.Dense_tanh =tf.keras.layers.Dense(self.embedding_size, activation='tanh')
         
     def build(self, input_shape):
@@ -185,7 +126,7 @@ class GRU_gate_parameter(tf.keras.layers.Layer):
 
                                                                                                                                                                 
 class AUGRU(tf.keras.layers.Layer):
-    def __init__(self, embedding_size=EMBEDDING_SIZE,  time_length=5):
+    def __init__(self, embedding_size=10,  time_length=5):
         super().__init__()
         self.time_length = time_length
         self.embedding_size = embedding_size      
@@ -215,7 +156,7 @@ class AUGRU(tf.keras.layers.Layer):
 
 augru_emb = AUGRU()([user_behaviors_hidden_state, attention_score])
 
-concat_layer = tf.keras.layers.concatenate([ augru_emb,  candidate_emb_layer, user_profile_layer, context_features_layer])
+concat_layer = tf.keras.layers.concatenate([augru_emb,  candidate_emb_layer, user_profile_layer, context_features_layer])
 
 output_layer = tf.keras.layers.Dense(128)(concat_layer)
 output_layer = tf.keras.layers.PReLU()(output_layer)
@@ -257,8 +198,7 @@ class auxiliary_loss_layer(tf.keras.layers.Layer):
         return final_loss
 
 
-auxiliary_loss_value = auxiliary_loss_layer()([negtive_movie_emb_layer,
-                                               user_behaviors_emb_layer, user_behaviors_hidden_state, y_true, y_pred])
+auxiliary_loss_value = auxiliary_loss_layer()([negtive_movie_emb_layer, user_behaviors_emb_layer, user_behaviors_hidden_state, y_true, y_pred])
 
 model = tf.keras.Model(inputs=inputs, outputs=[y_pred,auxiliary_loss_value])
 
@@ -276,6 +216,4 @@ model.summary()
 # print some predict results
 predictions = model.predict(test_dataset)
 for prediction, goodRating in zip(predictions[0][:12], list(test_dataset)[0]):
-    print("Predicted good rating: {:.2%}".format(prediction[0]),
-          " | Actual rating label: ",
-          ("Good Rating" if bool(goodRating) else "Bad Rating"))
+    print("Predicted good rating: {:.2%}".format(prediction[0]), " | Actual rating label: ", ("Good Rating" if bool(goodRating) else "Bad Rating"))

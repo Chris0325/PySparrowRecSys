@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 
 import conf
-from util import get_sample_datasets, columns, build_inputs, evaluate_and_showcase
+from util import get_sample_datasets, columns, build_inputs, compile_train_evaluate_and_showcase
 
 inputs = build_inputs('neural_cf')
 train_dataset, test_dataset = get_sample_datasets()
@@ -40,16 +40,7 @@ def neural_cf_model_2(feature_inputs, item_feature_columns, user_feature_columns
 # neural cf model architecture
 model = neural_cf_model_1(inputs, [columns['movieId']], [columns['userId']], [10, 10])
 
-# compile the model, set loss function, optimizer and evaluation metrics
-model.compile(
-    loss='binary_crossentropy',
-    optimizer='adam',
-    metrics=['accuracy', tf.keras.metrics.AUC(curve='ROC'), tf.keras.metrics.AUC(curve='PR')])
-
-# train the model
-model.fit(train_dataset, epochs=5)
-
-evaluate_and_showcase(model, test_dataset)
+compile_train_evaluate_and_showcase(model, train_dataset, test_dataset)
 
 tf.keras.models.save_model(
     model,

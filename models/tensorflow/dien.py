@@ -16,7 +16,7 @@ import tensorflow as tf
 import random
 
 import conf
-from util import build_inputs, columns, recent_rate_keys, negtive_movie_keys, evaluate_and_showcase
+from util import build_inputs, columns, recent_rate_keys, negtive_movie_keys, compile_train_evaluate_and_showcase
 
 inputs = build_inputs('dien')
 
@@ -202,13 +202,7 @@ class auxiliary_loss_layer(tf.keras.layers.Layer):
 
 auxiliary_loss_value = auxiliary_loss_layer()([negtive_movie_emb_layer, user_behaviors_emb_layer, user_behaviors_hidden_state, y_true, y_pred])
 
-model = tf.keras.Model(inputs=inputs, outputs=[y_pred,auxiliary_loss_value])
-
-model.compile(optimizer="adam")
-
-# train the model
-model.fit(train_dataset, epochs=5)
-
+model = tf.keras.Model(inputs=inputs, outputs=[y_pred, auxiliary_loss_value])
 model.summary()
 
-evaluate_and_showcase(model, test_dataset)
+compile_train_evaluate_and_showcase(model, train_dataset, test_dataset)

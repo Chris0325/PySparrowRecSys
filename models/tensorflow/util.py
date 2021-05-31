@@ -118,7 +118,16 @@ def get_sample_datasets(batch_size=16):
     return train_dataset, test_dataset
 
 
-def evaluate_and_showcase(model, test_dataset):
+def compile_train_evaluate_and_showcase(model, train_dataset, test_dataset, epochs=5):
+    # compile the model, set loss function, optimizer and evaluation metrics
+    model.compile(
+        loss='binary_crossentropy',
+        optimizer='adam',
+        metrics=['accuracy', tf.keras.metrics.AUC(curve='ROC'), tf.keras.metrics.AUC(curve='PR')])
+
+    # train the model
+    model.fit(train_dataset, epochs)
+
     # evaluate the model
     test_loss, test_accuracy, test_roc_auc, test_pr_auc = model.evaluate(test_dataset)
     print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.format(test_loss, test_accuracy,

@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, build_inputs, columns, common_numeric_keys, GENRE_FEATURES, evaluate_and_showcase
+from util import get_sample_datasets, build_inputs, columns, common_numeric_keys, GENRE_FEATURES, compile_train_evaluate_and_showcase
 
 inputs = build_inputs('embedding_mlp')
 train_dataset, test_dataset = get_sample_datasets()
@@ -13,13 +13,4 @@ x = tf.keras.layers.Dense(128, activation='relu')(x)
 outputs = tf.keras.layers.Dense(1, activation='sigmoid')(x)
 model = tf.keras.Model(inputs=inputs, outputs=outputs)
 
-# compile the model, set loss function, optimizer and evaluation metrics
-model.compile(
-    loss='binary_crossentropy',
-    optimizer='adam',
-    metrics=['accuracy', tf.keras.metrics.AUC(curve='ROC'), tf.keras.metrics.AUC(curve='PR')])
-
-# train the model
-model.fit(train_dataset, epochs=5)
-
-evaluate_and_showcase(model, test_dataset)
+compile_train_evaluate_and_showcase(model, train_dataset, test_dataset)

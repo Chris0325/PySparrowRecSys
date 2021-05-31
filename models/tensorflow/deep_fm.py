@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, build_inputs, columns, evaluate_and_showcase, common_numeric_keys
+from util import get_sample_datasets, build_inputs, columns, compile_train_evaluate_and_showcase, common_numeric_keys
 
 inputs = build_inputs('deep_fm')
 train_dataset, test_dataset = get_sample_datasets()
@@ -35,13 +35,5 @@ concat_layer = tf.keras.layers.concatenate([fm_first_order_layer, product_layer_
 output_layer = tf.keras.layers.Dense(1, activation='sigmoid')(concat_layer)
 
 model = tf.keras.Model(inputs, output_layer)
-# compile the model, set loss function, optimizer and evaluation metrics
-model.compile(
-    loss='binary_crossentropy',
-    optimizer='adam',
-    metrics=['accuracy', tf.keras.metrics.AUC(curve='ROC'), tf.keras.metrics.AUC(curve='PR')])
 
-# train the model
-model.fit(train_dataset, epochs=5)
-
-evaluate_and_showcase(model, test_dataset)
+compile_train_evaluate_and_showcase(model, train_dataset, test_dataset)

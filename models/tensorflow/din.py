@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, build_inputs, columns, recent_rate_keys, evaluate_and_showcase
+from util import get_sample_datasets, build_inputs, columns, recent_rate_keys, compile_train_evaluate_and_showcase
 
 inputs = build_inputs('din')
 train_dataset, test_dataset = get_sample_datasets()
@@ -58,13 +58,5 @@ output_layer = tf.keras.layers.PReLU()(output_layer)
 output_layer = tf.keras.layers.Dense(1, activation='sigmoid')(output_layer)
 
 model = tf.keras.Model(inputs, output_layer)
-# compile the model, set loss function, optimizer and evaluation metrics
-model.compile(
-    loss='binary_crossentropy',
-    optimizer='adam',
-    metrics=['accuracy', tf.keras.metrics.AUC(curve='ROC'), tf.keras.metrics.AUC(curve='PR')])
 
-# train the model
-model.fit(train_dataset, epochs=5)
-
-evaluate_and_showcase(model, test_dataset)
+compile_train_evaluate_and_showcase(model, train_dataset, test_dataset)

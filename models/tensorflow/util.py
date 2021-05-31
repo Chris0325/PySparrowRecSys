@@ -43,7 +43,7 @@ for feature, vocab in GENRE_FEATURES.items():
     emb_col = tf.feature_column.embedding_column(cat_col, 10)
     ind_col = tf.feature_column.indicator_column(cat_col)  # dense indicator column
     columns[feature] = emb_col
-    columns['ind' + feature.capitalize()] = ind_col
+    columns['ind' + feature[0].upper() + feature[1:]] = ind_col
 
 common_numeric_keys = ['releaseYear', 'movieRatingCount', 'movieAvgRating', 'movieRatingStddev', 'userRatingCount',
                        'userAvgRating', 'userRatingStddev']

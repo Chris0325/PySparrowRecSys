@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, GENRE_FEATURES
+from util import get_sample_datasets, GENRE_FEATURES, inputs
 
 train_dataset, test_dataset = get_sample_datasets()
 
@@ -31,12 +31,11 @@ numerical_columns = [tf.feature_column.numeric_column('releaseYear'),
                      tf.feature_column.numeric_column('userRatingStddev')]
 
 # embedding + MLP model architecture
-model = tf.keras.Sequential([
-    tf.keras.layers.DenseFeatures(numerical_columns + categorical_columns),
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dense(1, activation='sigmoid'),
-])
+x = tf.keras.layers.DenseFeatures(numerical_columns + categorical_columns)(inputs)
+x = tf.keras.layers.Dense(128, activation='relu')(x)
+x = tf.keras.layers.Dense(128, activation='relu')(x)
+outputs = tf.keras.layers.Dense(1, activation='sigmoid')(x)
+model = tf.keras.Model(inputs=inputs, outputs=outputs)
 
 # compile the model, set loss function, optimizer and evaluation metrics
 model.compile(

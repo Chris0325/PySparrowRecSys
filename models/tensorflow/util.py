@@ -45,18 +45,13 @@ inputs = {
 
 
 def get_sample_datasets(batch_size=16):
-    # Training samples path, change to your local path
-    training_samples_file_path = tf.keras.utils.get_file("trainingSamples.csv",
-                                                         os.path.join(conf.data_directory, "sampledata/trainingSamples.csv"))
-    # Test samples path, change to your local path
-    test_samples_file_path = tf.keras.utils.get_file("testSamples.csv",
-                                                     os.path.join(conf.data_directory, "sampledata/testSamples.csv"))
-
     # split as test dataset and training dataset
-    train_dataset = tf.data.experimental.make_csv_dataset(training_samples_file_path, batch_size=batch_size,
-            label_name='label', na_value="0", num_epochs=1, ignore_errors=True)
+    train_dataset = tf.data.experimental.make_csv_dataset(os.path.join(conf.data_directory, "sampledata", "trainingSamples.csv"),
+                                                          batch_size=batch_size, label_name='label', na_value="0",
+                                                          num_epochs=1, ignore_errors=True)
 
-    test_dataset = tf.data.experimental.make_csv_dataset(test_samples_file_path, batch_size=batch_size,
-            label_name='label', na_value="0", num_epochs=1, ignore_errors=True)
+    test_dataset = tf.data.experimental.make_csv_dataset(os.path.join(conf.data_directory, "sampledata", "testSamples.csv"),
+                                                          batch_size=batch_size, label_name='label', na_value="0",
+                                                          num_epochs=1, ignore_errors=True)
 
     return train_dataset, test_dataset

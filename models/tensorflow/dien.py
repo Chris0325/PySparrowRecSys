@@ -19,14 +19,6 @@ import conf
 from util import genre_vocab, inputs
 
 
-# Training samples path, change to your local path
-training_samples_file_path = tf.keras.utils.get_file("trainingSamples.csv",
-                                                     os.path.join(conf.data_directory, "sampledata/trainingSamples.csv"))
-# Test samples path, change to your local path
-test_samples_file_path = tf.keras.utils.get_file("testSamples.csv",
-                                                 os.path.join(conf.data_directory, "sampledata/testSamples.csv"))
-
-
 def get_dataset_with_negtive_movie(path, batch_size, seed_num):
     tmp_df = pd.read_csv(path)
     tmp_df.fillna(0, inplace=True)
@@ -46,8 +38,8 @@ def get_dataset_with_negtive_movie(path, batch_size, seed_num):
     return dataset
 
 
-train_dataset = get_dataset_with_negtive_movie(training_samples_file_path, 12, seed_num=2020)
-test_dataset = get_dataset_with_negtive_movie(test_samples_file_path, 12, seed_num=2021)
+train_dataset = get_dataset_with_negtive_movie(os.path.join(conf.data_directory, "sampledata", "trainingSamples.csv"), 12, seed_num=2020)
+test_dataset = get_dataset_with_negtive_movie(os.path.join(conf.data_directory, "sampledata", "testSamples.csv"), 12, seed_num=2021)
 
 # Config
 RECENT_MOVIES = 5  # userRatedMovie{1-5}

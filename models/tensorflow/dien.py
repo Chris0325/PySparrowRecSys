@@ -20,29 +20,6 @@ from util import build_inputs, columns, recent_rate_keys, negtive_movie_keys, co
 
 inputs = build_inputs('dien')
 
-
-def get_dataset_with_negtive_movie(path, batch_size, seed_num):
-    tmp_df = pd.read_csv(path)
-    tmp_df.fillna(0, inplace=True)
-    random.seed(seed_num)
-    negtive_movie_df = tmp_df.loc[:, 'userRatedMovie2':'userRatedMovie5'].applymap(lambda x: random.sample(set(range(0, 1001)) - set([int(x)]), 1)[0])
-    negtive_movie_df.columns = ['negtive_userRatedMovie2', 'negtive_userRatedMovie3', 'negtive_userRatedMovie4', 'negtive_userRatedMovie5']
-    tmp_df = pd.concat([tmp_df, negtive_movie_df], axis=1)
-
-    for i in tmp_df.select_dtypes('O').columns:
-        tmp_df[i] = tmp_df[i].astype('str')
-    
-    if tf.__version__ < '2.3.0':
-        tmp_df = tmp_df.sample(n=batch_size*(len(tmp_df)//batch_size), random_state=seed_num)
-
-    dataset = tf.data.Dataset.from_tensor_slices((dict(tmp_df)))
-    dataset = dataset.batch(batch_size)
-    return dataset
-
-
-train_dataset = get_dataset_with_negtive_movie(os.path.join(conf.data_directory, "sampledata", "trainingSamples.csv"), 16, seed_num=2020)
-test_dataset = get_dataset_with_negtive_movie(os.path.join(conf.data_directory, "sampledata", "testSamples.csv"), 16, seed_num=2021)
-
 candidate_movie_col = [tf.feature_column.numeric_column(key='movieId', default_value=0)]
 
 # user behaviors
@@ -205,4 +182,4 @@ auxiliary_loss_value = auxiliary_loss_layer()([negtive_movie_emb_layer, user_beh
 model = tf.keras.Model(inputs=inputs, outputs=[y_pred, auxiliary_loss_value])
 model.summary()
 
-compile_train_evaluate_and_showcase(model, train_dataset, test_dataset)
+compile_train_evaluate_and_showcase(model, dien=True)

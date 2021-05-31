@@ -6,10 +6,9 @@ Diff with DeepFM:
 
 import tensorflow as tf
 
-from util import get_sample_datasets, build_inputs, columns, common_numeric_keys, compile_train_evaluate_and_showcase
+from util import build_inputs, columns, common_numeric_keys, compile_train_evaluate_and_showcase
 
 inputs = build_inputs('deep_fm_v2')
-train_dataset, test_dataset = get_sample_datasets()
 
 # fm first-order categorical items
 cat_columns = [columns['indMovieId'], columns['indUserId'], columns['indUserGenre1'], columns['indMovieGenre1']]
@@ -77,4 +76,4 @@ output_layer = tf.keras.layers.Dense(1, activation='sigmoid')(concatenated_outpu
 
 model = tf.keras.Model(inputs, output_layer)
 
-compile_train_evaluate_and_showcase(model, train_dataset, test_dataset)
+compile_train_evaluate_and_showcase(model)

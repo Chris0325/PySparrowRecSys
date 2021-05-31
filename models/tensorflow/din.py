@@ -1,9 +1,8 @@
 import tensorflow as tf
 
-from util import get_sample_datasets, build_inputs, columns, recent_rate_keys, compile_train_evaluate_and_showcase
+from util import build_inputs, columns, recent_rate_keys, compile_train_evaluate_and_showcase
 
 inputs = build_inputs('din')
-train_dataset, test_dataset = get_sample_datasets()
 
 candidate_movie_col = [tf.feature_column.numeric_column(key='movieId', default_value=0)]
 
@@ -59,4 +58,4 @@ output_layer = tf.keras.layers.Dense(1, activation='sigmoid')(output_layer)
 
 model = tf.keras.Model(inputs, output_layer)
 
-compile_train_evaluate_and_showcase(model, train_dataset, test_dataset)
+compile_train_evaluate_and_showcase(model)

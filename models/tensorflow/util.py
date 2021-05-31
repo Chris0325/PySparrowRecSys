@@ -105,20 +105,47 @@ def build_inputs(task):
         return {k: inputs[k] for k in base_keys + recent_rate_keys + negtive_movie_keys + ['label']}
 
 
-def get_sample_datasets(batch_size=16):
-    # split as test dataset and training dataset
-    train_dataset = tf.data.experimental.make_csv_dataset(os.path.join(conf.data_directory, "sampledata", "trainingSamples.csv"),
-                                                          batch_size=batch_size, label_name='label', na_value="0",
-                                                          num_epochs=1, ignore_errors=True)
+def get_sample_datasets(batch_size=16, dien=False):
+    if dien:
+        train_dataset = get_dataset_with_negtive_movie(
+            os.path.join(conf.data_directory, "sampledata", "trainingSamples.csv"), batch_size, seed_num=2020)
+        test_dataset = get_dataset_with_negtive_movie(
+            os.path.join(conf.data_directory, "sampledata", "testSamples.csv"), batch_size, seed_num=2021)
+    else:
+        train_dataset = tf.data.experimental.make_csv_dataset(os.path.join(conf.data_directory, "sampledata", "trainingSamples.csv"),
+                                                              batch_size=batch_size, label_name='label', na_value="0",
+                                                              num_epochs=1, ignore_errors=True)
 
-    test_dataset = tf.data.experimental.make_csv_dataset(os.path.join(conf.data_directory, "sampledata", "testSamples.csv"),
-                                                          batch_size=batch_size, label_name='label', na_value="0",
-                                                          num_epochs=1, ignore_errors=True)
+        test_dataset = tf.data.experimental.make_csv_dataset(os.path.join(conf.data_directory, "sampledata", "testSamples.csv"),
+                                                              batch_size=batch_size, label_name='label', na_value="0",
+                                                              num_epochs=1, ignore_errors=True)
 
     return train_dataset, test_dataset
 
 
-def compile_train_evaluate_and_showcase(model, train_dataset, test_dataset, epochs=5):
+def get_dataset_with_negtive_movie(path, batch_size, seed_num):
+    tmp_df = pd.read_csv(path)
+    tmp_df.fillna(0, inplace=True)
+    random.seed(seed_num)
+    negtive_movie_df = tmp_df.loc[:, 'userRatedMovie2':'userRatedMovie5'].applymap(
+        lambda x: random.sample(set(range(0, 1001)) - set([int(x)]), 1)[0])
+    negtive_movie_df.columns = ['negtive_userRatedMovie2', 'negtive_userRatedMovie3', 'negtive_userRatedMovie4',
+                                'negtive_userRatedMovie5']
+    tmp_df = pd.concat([tmp_df, negtive_movie_df], axis=1)
+
+    for i in tmp_df.select_dtypes('O').columns:
+        tmp_df[i] = tmp_df[i].astype('str')
+
+    if tf.__version__ < '2.3.0':
+        tmp_df = tmp_df.sample(n=batch_size * (len(tmp_df) // batch_size), random_state=seed_num)
+
+    dataset = tf.data.Dataset.from_tensor_slices((dict(tmp_df)))
+    dataset = dataset.batch(batch_size)
+    return dataset
+
+
+def compile_train_evaluate_and_showcase(model, epochs=5, dien=False):
+    train_dataset, test_dataset = get_sample_datasets(dien=dien)
     # compile the model, set loss function, optimizer and evaluation metrics
     model.compile(
         loss='binary_crossentropy',

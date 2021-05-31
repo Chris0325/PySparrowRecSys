@@ -2,10 +2,9 @@ import os
 import tensorflow as tf
 
 import conf
-from util import get_sample_datasets, columns, build_inputs, compile_train_evaluate_and_showcase
+from util import columns, build_inputs, compile_train_evaluate_and_showcase
 
 inputs = build_inputs('neural_cf')
-train_dataset, test_dataset = get_sample_datasets()
 
 
 # neural cf model arch one. only embedding in each tower, then MLP as the interaction layers
@@ -40,7 +39,7 @@ def neural_cf_model_2(feature_inputs, item_feature_columns, user_feature_columns
 # neural cf model architecture
 model = neural_cf_model_1(inputs, [columns['movieId']], [columns['userId']], [10, 10])
 
-compile_train_evaluate_and_showcase(model, train_dataset, test_dataset)
+compile_train_evaluate_and_showcase(model)
 
 tf.keras.models.save_model(
     model,

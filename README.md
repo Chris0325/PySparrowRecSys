@@ -11,10 +11,11 @@ sh setup.sh
 
 # python3.7 required
 # eg: conda create -n py37 python=3.7
+pip install tensorflow
+
+export TF_CPP_MIN_LOG_LEVEL=3
 export PYTHONPATH=$(pwd)
 
 # otherwise, pip install -r requirements.txt
 conda install --yes --file requirements.txt
-
-pip install tensorflow
 ```

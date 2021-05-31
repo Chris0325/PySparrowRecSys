@@ -113,7 +113,7 @@ class AUGRU(tf.keras.layers.Layer):
         self.Z_t = GRU_gate_parameter()                                                                                     
         self.H_t_next = GRU_gate_parameter()     
 
-    def call(self, inputs ):
+    def call(self, inputs):
         gru_hidden_state_inputs, attention_s = inputs
         initializer = tf.keras.initializers.GlorotUniform()
         AUGRU_hidden_state = tf.reshape(initializer(shape=(1, self.embedding_size)), shape=(-1, self.embedding_size))

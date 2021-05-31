@@ -129,8 +129,7 @@ def get_dataset_with_negtive_movie(path, batch_size, seed_num):
     tmp_df = pd.read_csv(path)
     tmp_df.fillna(0, inplace=True)
     random.seed(seed_num)
-    negtive_movie_df = tmp_df.loc[:, 'userRatedMovie2':'userRatedMovie5'].applymap(
-        lambda x: random.sample(set(range(0, 1001)) - set([int(x)]), 1)[0])
+    negtive_movie_df = tmp_df.loc[:, 'userRatedMovie2':'userRatedMovie5'].applymap(lambda x: random.sample(set(range(0, 1001)) - set([int(x)]), 1)[0])
     negtive_movie_df.columns = ['negtive_userRatedMovie2', 'negtive_userRatedMovie3', 'negtive_userRatedMovie4',
                                 'negtive_userRatedMovie5']
     tmp_df = pd.concat([tmp_df, negtive_movie_df], axis=1)
@@ -149,21 +148,23 @@ def get_dataset_with_negtive_movie(path, batch_size, seed_num):
 def compile_train_evaluate_and_showcase(model, epochs=5, dien=False):
     train_dataset, test_dataset = get_sample_datasets(dien=dien)
     # compile the model, set loss function, optimizer and evaluation metrics
-    model.compile(
-        loss='binary_crossentropy',
-        optimizer='adam',
-        metrics=['accuracy', tf.keras.metrics.AUC(curve='ROC'), tf.keras.metrics.AUC(curve='PR')])
+    if dien:
+        model.compile(optimizer='adam')
+    else:
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', tf.keras.metrics.AUC(curve='ROC'), tf.keras.metrics.AUC(curve='PR')])
 
     # train the model
     model.fit(train_dataset, epochs=epochs)
 
     # evaluate the model
-    test_loss, test_accuracy, test_roc_auc, test_pr_auc = model.evaluate(test_dataset)
-    print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.format(test_loss, test_accuracy,
-                                                                                       test_roc_auc, test_pr_auc))
+    if dien:
+        test_loss, test_roc_auc = model.evaluate(test_dataset)
+        print('\n\nTest Loss {},  Test ROC AUC {},'.format(test_loss, test_roc_auc))
+    else:
+        test_loss, test_accuracy, test_roc_auc, test_pr_auc = model.evaluate(test_dataset)
+        print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.format(test_loss, test_accuracy, test_roc_auc, test_pr_auc))
 
     # print some predict results
     predictions = model.predict(test_dataset)
     for prediction, goodRating in zip(predictions[:12], list(test_dataset)[0][1][:12]):
-        print("Predicted good rating: {:.2%}".format(prediction[0]), " | Actual rating label: ",
-              ("Good Rating" if bool(goodRating) else "Bad Rating"))
+        print("Predicted good rating: {:.2%}".format(prediction[0]), " | Actual rating label: ", ("Good Rating" if bool(goodRating) else "Bad Rating"))

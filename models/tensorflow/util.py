@@ -95,7 +95,7 @@ def build_inputs(task):
     base_keys = common_numeric_keys + list(GENRE_FEATURES.keys()) + ['movieId', 'userId']
     if task == 'embedding_mlp':
         return {k: inputs[k] for k in base_keys}
-    elif task == ['wide_n_deep', 'deep_fm', 'deep_fm_v2']:
+    elif task in ['wide_n_deep', 'deep_fm', 'deep_fm_v2']:
         return {k: inputs[k] for k in base_keys + ['userRatedMovie1']}
     elif task == 'neural_cf':
         return {k: inputs[k] for k in ['movieId', 'userId']}

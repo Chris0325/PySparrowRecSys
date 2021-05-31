@@ -10,12 +10,8 @@ Reference:
     [1] Zhou G ,  Mou N ,  Fan Y , et al. Deep Interest Evolution Network for Click-Through Rate Prediction[J].  2018.
 """
 
-import os
-import pandas as pd
 import tensorflow as tf
-import random
 
-import conf
 from util import build_inputs, columns, recent_rate_keys, negtive_movie_keys, compile_train_evaluate_and_showcase
 
 inputs = build_inputs('dien')

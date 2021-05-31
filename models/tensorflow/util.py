@@ -1,4 +1,6 @@
 import os
+import random
+import pandas as pd
 import tensorflow as tf
 
 import conf
@@ -153,7 +155,7 @@ def compile_train_evaluate_and_showcase(model, epochs=5, dien=False):
         metrics=['accuracy', tf.keras.metrics.AUC(curve='ROC'), tf.keras.metrics.AUC(curve='PR')])
 
     # train the model
-    model.fit(train_dataset, epochs)
+    model.fit(train_dataset, epochs=epochs)
 
     # evaluate the model
     test_loss, test_accuracy, test_roc_auc, test_pr_auc = model.evaluate(test_dataset)

@@ -16,7 +16,7 @@ import tensorflow as tf
 import random
 
 import conf
-from util import build_inputs, columns, recent_rate_keys, negtive_movie_keys
+from util import build_inputs, columns, recent_rate_keys, negtive_movie_keys, evaluate_and_showcase
 
 inputs = build_inputs('dien')
 
@@ -209,13 +209,6 @@ model.compile(optimizer="adam")
 # train the model
 model.fit(train_dataset, epochs=5)
 
-# evaluate the model
-test_loss,  test_roc_auc = model.evaluate(test_dataset)
-print('\n\nTest Loss {},  Test ROC AUC {},'.format(test_loss, test_roc_auc))
-
 model.summary()
 
-# print some predict results
-predictions = model.predict(test_dataset)
-for prediction, goodRating in zip(predictions[0][:12], list(test_dataset)[0]):
-    print("Predicted good rating: {:.2%}".format(prediction[0]), " | Actual rating label: ", ("Good Rating" if bool(goodRating) else "Bad Rating"))
+evaluate_and_showcase(model, test_dataset)

@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 
 import conf
-from util import get_sample_datasets, columns, build_inputs
+from util import get_sample_datasets, columns, build_inputs, evaluate_and_showcase
 
 inputs = build_inputs('neural_cf')
 train_dataset, test_dataset = get_sample_datasets()
@@ -49,14 +49,7 @@ model.compile(
 # train the model
 model.fit(train_dataset, epochs=5)
 
-# evaluate the model
-test_loss, test_accuracy, test_roc_auc, test_pr_auc = model.evaluate(test_dataset)
-print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.format(test_loss, test_accuracy, test_roc_auc, test_pr_auc))
-
-# print some predict results
-predictions = model.predict(test_dataset)
-for prediction, goodRating in zip(predictions[:12], list(test_dataset)[0][1][:12]):
-    print("Predicted good rating: {:.2%}".format(prediction[0]), " | Actual rating label: ", ("Good Rating" if bool(goodRating) else "Bad Rating"))
+evaluate_and_showcase(model, test_dataset)
 
 tf.keras.models.save_model(
     model,

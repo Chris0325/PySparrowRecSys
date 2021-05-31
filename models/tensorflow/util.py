@@ -116,3 +116,16 @@ def get_sample_datasets(batch_size=16):
                                                           num_epochs=1, ignore_errors=True)
 
     return train_dataset, test_dataset
+
+
+def evaluate_and_showcase(model, test_dataset):
+    # evaluate the model
+    test_loss, test_accuracy, test_roc_auc, test_pr_auc = model.evaluate(test_dataset)
+    print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.format(test_loss, test_accuracy,
+                                                                                       test_roc_auc, test_pr_auc))
+
+    # print some predict results
+    predictions = model.predict(test_dataset)
+    for prediction, goodRating in zip(predictions[:12], list(test_dataset)[0][1][:12]):
+        print("Predicted good rating: {:.2%}".format(prediction[0]), " | Actual rating label: ",
+              ("Good Rating" if bool(goodRating) else "Bad Rating"))

@@ -6,7 +6,7 @@ train_dataset, test_dataset = get_sample_datasets()
 
 # cross feature between current movie and user historical movie
 rated_movie = tf.feature_column.categorical_column_with_identity(key='userRatedMovie1', num_buckets=1001)
-crossed_feature = tf.feature_column.indicator_column(tf.feature_column.crossed_column([columns['movieId'], rated_movie], 10000))
+crossed_feature = tf.feature_column.indicator_column(tf.feature_column.crossed_column([columns['catMovieId'], rated_movie], 10000))
 
 # wide and deep model architecture
 # deep part for all input features

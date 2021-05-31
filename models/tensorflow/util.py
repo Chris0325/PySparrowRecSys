@@ -68,16 +68,16 @@ user_ind_col = tf.feature_column.indicator_column(user_col)  # dense, user id in
 columns = {
     'userId': user_emb_col,
     'indUserId': user_ind_col,
-    'movideId': movie_emb_col,
+    'movieId': movie_emb_col,
+    'catMovieId': movie_col,
     'indMovieId': movie_ind_col,
     'label': tf.feature_column.numeric_column(key='label', default_value=0),
 }
 # genre embedding features
 for feature, vocab in GENRE_FEATURES.items():
-    cat_col = tf.feature_column.categorical_column_with_vocabulary_list(
-        key=feature, vocabulary_list=vocab)
+    cat_col = tf.feature_column.categorical_column_with_vocabulary_list(key=feature, vocabulary_list=vocab)
     emb_col = tf.feature_column.embedding_column(cat_col, 10)
-    ind_col = tf.feature_column.indicator_column(emb_col)  # dense indicator column
+    ind_col = tf.feature_column.indicator_column(cat_col)  # dense indicator column
     columns[feature] = emb_col
     columns['ind' + feature.capitalize()] = ind_col
 

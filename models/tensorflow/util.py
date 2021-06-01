@@ -10,16 +10,8 @@ genre_vocab = ['Film-Noir', 'Action', 'Adventure', 'Horror', 'Romance', 'War', '
                'Sci-Fi', 'Drama', 'Thriller',
                'Crime', 'Fantasy', 'Animation', 'IMAX', 'Mystery', 'Children', 'Musical']
 
-genre_features = {
-    'userGenre1': genre_vocab,
-    'userGenre2': genre_vocab,
-    'userGenre3': genre_vocab,
-    'userGenre4': genre_vocab,
-    'userGenre5': genre_vocab,
-    'movieGenre1': genre_vocab,
-    'movieGenre2': genre_vocab,
-    'movieGenre3': genre_vocab
-}
+genre_features_keys = [f'userGenre{i}' for i in range(1, 6)] + [f'movieGenre{i}' for i in range(1, 4)]
+genre_features = {k: genre_vocab for k in genre_features_keys}
 
 # movie id embedding feature
 movie_col = tf.feature_column.categorical_column_with_identity(key='movieId', num_buckets=1001)
@@ -54,11 +46,14 @@ recent_rate_keys = ['userRatedMovie' + str(i) for i in range(1, 6)]
 
 negtive_movie_keys = ['negtive_userRatedMovie' + str(i) for i in range(2, 6)]
 
-base_feature_keys = common_numeric_keys + list(genre_features.keys()) + ['movieId', 'userId']
+base_feature_keys = common_numeric_keys + genre_features_keys + ['movieId', 'userId']
 
 # numerical features
 for k in common_numeric_keys + recent_rate_keys + negtive_movie_keys:
     columns[k] = tf.feature_column.numeric_column(k)
+
+user_profile_keys = ['userId', 'userGenre1', 'userRatingCount', 'userAvgRating', 'userRatingStddev']
+context_keys = ['movieGenre1', 'releaseYear', 'movieRatingCount', 'movieAvgRating', 'movieRatingStddev']
 
 
 # define input for keras model
@@ -128,21 +123,17 @@ def get_sample_datasets(batch_size=16, dien=False):
 
 
 def get_dataset_with_negtive_movie(path, batch_size, seed_num):
-    tmp_df = pd.read_csv(path)
-    tmp_df.fillna(0, inplace=True)
+    df = pd.read_csv(path)
+    df.fillna(0, inplace=True)
     random.seed(seed_num)
-    negtive_movie_df = tmp_df.loc[:, 'userRatedMovie2':'userRatedMovie5'].applymap(lambda x: random.sample(set(range(0, 1001)) - set([int(x)]), 1)[0])
-    negtive_movie_df.columns = ['negtive_userRatedMovie2', 'negtive_userRatedMovie3', 'negtive_userRatedMovie4',
-                                'negtive_userRatedMovie5']
-    tmp_df = pd.concat([tmp_df, negtive_movie_df], axis=1)
+    negtive_movie_df = df.loc[:, 'userRatedMovie2':'userRatedMovie5'].applymap(lambda x: random.sample(set(range(0, 1001)) - set([int(x)]), 1)[0])
+    negtive_movie_df.columns = negtive_movie_keys
+    df = pd.concat([df, negtive_movie_df], axis=1)
 
-    for i in tmp_df.select_dtypes('O').columns:
-        tmp_df[i] = tmp_df[i].astype('str')
+    for i in df.select_dtypes('O').columns:
+        df[i] = df[i].astype('str')
 
-    if tf.__version__ < '2.3.0':
-        tmp_df = tmp_df.sample(n=batch_size * (len(tmp_df) // batch_size), random_state=seed_num)
-
-    dataset = tf.data.Dataset.from_tensor_slices((dict(tmp_df)))
+    dataset = tf.data.Dataset.from_tensor_slices(dict(df))
     dataset = dataset.batch(batch_size)
     return dataset
 
@@ -159,14 +150,11 @@ def compile_train_evaluate_and_showcase(model, epochs=5, dien=False):
     model.fit(train_dataset, epochs=epochs)
 
     # evaluate the model
-    if dien:
-        test_loss, test_roc_auc = model.evaluate(test_dataset)
-        print('\n\nTest Loss {},  Test ROC AUC {},'.format(test_loss, test_roc_auc))
-    else:
-        test_loss, test_accuracy, test_roc_auc, test_pr_auc = model.evaluate(test_dataset)
-        print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.format(test_loss, test_accuracy, test_roc_auc, test_pr_auc))
+    test_loss, test_accuracy, test_roc_auc, test_pr_auc = model.evaluate(test_dataset)
+    print('\n\nTest Loss {}, Test Accuracy {}, Test ROC AUC {}, Test PR AUC {}'.format(test_loss, test_accuracy, test_roc_auc, test_pr_auc))
 
     # print some predict results
     predictions = model.predict(test_dataset)
-    for prediction, goodRating in zip(predictions[:12], list(test_dataset)[0][1][:12]):
+    for prediction, goodRating in zip(predictions[0][:12] if dien else predictions[:12],
+                                      next(iter(test_dataset))['label'][:12] if dien else list(test_dataset)[0][1][:12]):
         print("Predicted good rating: {:.2%}".format(prediction[0]), " | Actual rating label: ", ("Good Rating" if bool(goodRating) else "Bad Rating"))

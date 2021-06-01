@@ -14,7 +14,7 @@ user_emb_layer = tf.keras.layers.DenseFeatures([columns['userId']])(inputs)
 item_genre_emb_layer = tf.keras.layers.DenseFeatures([columns['movieGenre1']])(inputs)
 user_genre_emb_layer = tf.keras.layers.DenseFeatures([columns['userGenre1']])(inputs)
 
-# The first-order term in the FM layer
+# first-order term in the FM layer
 fm_first_order_layer = tf.keras.layers.DenseFeatures(fm_first_order_columns)(inputs)
 
 # FM part, cross different categorical feature embeddings

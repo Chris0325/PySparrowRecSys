@@ -151,4 +151,4 @@ if __name__ == '__main__':
     samplesWithUserFeatures = addUserFeatures(samplesWithMovieFeatures)
     # save samples as csv format
     splitAndSaveTrainingTestSamples(samplesWithUserFeatures, os.path.join(conf.data_directory, "sampledata"))
-    # splitAndSaveTrainingTestSamplesByTimeStamp(samplesWithUserFeatures, file_path + "/webroot/sampledata")
+    # splitAndSaveTrainingTestSamplesByTimeStamp(samplesWithUserFeatures, os.path.join(conf.data_directory, "sampledata"))

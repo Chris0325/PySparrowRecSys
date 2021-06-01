@@ -4,7 +4,7 @@ from util import build_inputs, columns, compile_train_evaluate_and_showcase, com
 
 inputs = build_inputs('deep_fm')
 
-# fm first-order term columns: without embedding and concatenate to the output layer directly
+# FM first-order term columns: without embedding and concatenate to the output layer directly
 fm_first_order_columns = [columns['indMovieId'], columns['indUserId'], columns['indUserGenre1'], columns['indMovieGenre1']]
 
 deep_feature_columns = [columns[k] for k in common_numeric_keys + ['movieId', 'userId']]

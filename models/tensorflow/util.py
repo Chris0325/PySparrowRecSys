@@ -10,7 +10,7 @@ genre_vocab = ['Film-Noir', 'Action', 'Adventure', 'Horror', 'Romance', 'War', '
                'Sci-Fi', 'Drama', 'Thriller',
                'Crime', 'Fantasy', 'Animation', 'IMAX', 'Mystery', 'Children', 'Musical']
 
-GENRE_FEATURES = {
+genre_features = {
     'userGenre1': genre_vocab,
     'userGenre2': genre_vocab,
     'userGenre3': genre_vocab,
@@ -40,7 +40,7 @@ columns = {
     'label': tf.feature_column.numeric_column(key='label', default_value=0),
 }
 # genre embedding features
-for feature, vocab in GENRE_FEATURES.items():
+for feature, vocab in genre_features.items():
     cat_col = tf.feature_column.categorical_column_with_vocabulary_list(key=feature, vocabulary_list=vocab)
     emb_col = tf.feature_column.embedding_column(cat_col, 10)
     ind_col = tf.feature_column.indicator_column(cat_col)  # dense indicator column
@@ -54,7 +54,7 @@ recent_rate_keys = ['userRatedMovie' + str(i) for i in range(1, 6)]
 
 negtive_movie_keys = ['negtive_userRatedMovie' + str(i) for i in range(2, 6)]
 
-base_feature_keys = common_numeric_keys + list(GENRE_FEATURES.keys()) + ['movieId', 'userId']
+base_feature_keys = common_numeric_keys + list(genre_features.keys()) + ['movieId', 'userId']
 
 # numerical features
 for k in common_numeric_keys + recent_rate_keys + negtive_movie_keys:

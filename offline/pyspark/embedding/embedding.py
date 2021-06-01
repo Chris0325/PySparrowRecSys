@@ -192,11 +192,10 @@ if __name__ == '__main__':
     rawSampleDataPath = os.path.join(conf.data_directory, "sampledata", "ratings.csv")
     embLength = 10
     samples = processItemSequence(spark, rawSampleDataPath)
-    model = trainItem2vec(spark, samples, embLength,
-                          embOutputPath=os.path.join(conf.data_directory, "modeldata2", "item2vecEmb.csv"), saveToRedis=False,
-                          redisKeyPrefix="i2vEmb")
-    graphEmb(samples, spark, embLength, embOutputFilename=os.path.join(conf.data_directory, "modeldata2", "itemGraphEmb.csv"),
-             saveToRedis=True, redisKeyPrefix="graphEmb")
-    generateUserEmb(spark, rawSampleDataPath, model, embLength,
-                    embOutputPath=os.path.join(conf.data_directory, "modeldata2", "userEmb.csv"), saveToRedis=False,
-                    redisKeyPrefix="uEmb")
+    model = trainItem2vec(spark, samples, embLength, saveToRedis=False, redisKeyPrefix="i2vEmb",
+                          embOutputPath=os.path.join(conf.data_directory, "modeldata2", "item2vecEmb.csv"))
+
+    graphEmb(samples, spark, embLength, saveToRedis=True, redisKeyPrefix="graphEmb",
+             embOutputFilename=os.path.join(conf.data_directory, "modeldata2", "itemGraphEmb.csv"))
+    generateUserEmb(spark, rawSampleDataPath, model, embLength, saveToRedis=False, redisKeyPrefix="uEmb",
+                    embOutputPath=os.path.join(conf.data_directory, "modeldata2", "userEmb.csv"))

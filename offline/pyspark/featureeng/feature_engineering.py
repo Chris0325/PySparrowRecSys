@@ -27,13 +27,11 @@ def multiHotEncoderExample(movieSamples):
         split(F.col("genres"), "\\|").cast(ArrayType(StringType()))).alias('genre'))
     genreIndexer = StringIndexer(inputCol="genre", outputCol="genreIndex")
     StringIndexerModel = genreIndexer.fit(samplesWithGenre)
-    genreIndexSamples = StringIndexerModel.transform(samplesWithGenre).withColumn("genreIndexInt",
-                                                                                  F.col("genreIndex").cast(IntegerType()))
+    genreIndexSamples = StringIndexerModel.transform(samplesWithGenre).withColumn("genreIndexInt", F.col("genreIndex").cast(IntegerType()))
     indexSize = genreIndexSamples.agg(max(F.col("genreIndexInt"))).head()[0] + 1
     processedSamples = genreIndexSamples.groupBy('movieId').agg(
         F.collect_list('genreIndexInt').alias('genreIndexes')).withColumn("indexSize", F.lit(indexSize))
-    finalSample = processedSamples.withColumn("vector",
-                                              udf(array2vec, VectorUDT())(F.col("genreIndexes"), F.col("indexSize")))
+    finalSample = processedSamples.withColumn("vector", udf(array2vec, VectorUDT())(F.col("genreIndexes"), F.col("indexSize")))
     finalSample.printSchema()
     finalSample.show(10)
 

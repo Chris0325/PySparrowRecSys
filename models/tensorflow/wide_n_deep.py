@@ -17,7 +17,7 @@ deep = tf.keras.layers.Dense(128, activation='relu')(deep)
 # wide part for cross feature
 wide = tf.keras.layers.DenseFeatures([crossed_feature])(inputs)
 both = tf.keras.layers.concatenate([deep, wide])
-output_layer = tf.keras.layers.Dense(1, activation='sigmoid')(both)
-model = tf.keras.Model(inputs, output_layer)
+outputs = tf.keras.layers.Dense(1, activation='sigmoid')(both)
+model = tf.keras.Model(inputs, outputs)
 
 compile_train_evaluate_and_showcase(model)

@@ -21,8 +21,7 @@ if __name__ == '__main__':
     training, test = ratingSamples.randomSplit((0.8, 0.2))
     # Build the recommendation model using ALS on the training data
     # Note we set cold start strategy to 'drop' to ensure we don't get NaN evaluation metrics
-    als = ALS(regParam=0.01, maxIter=5, userCol='userIdInt', itemCol='movieIdInt', ratingCol='ratingFloat',
-              coldStartStrategy='drop')
+    als = ALS(regParam=0.01, maxIter=5, userCol='userIdInt', itemCol='movieIdInt', ratingCol='ratingFloat', coldStartStrategy='drop')
     model = als.fit(training)
     # Evaluate the model by computing the RMSE on the test data
     predictions = model.transform(test)

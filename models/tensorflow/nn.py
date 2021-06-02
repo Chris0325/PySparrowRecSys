@@ -73,31 +73,35 @@ class AuxiliaryLossLayer(tf.keras.layers.Layer):
     def __init__(self, time_length=5):
         super(AuxiliaryLossLayer, self).__init__()
         self.time_len = time_length - 1
+        self.positive_batch_norm = tf.keras.layers.BatchNormalization()
         self.dense_sigmoid_positive_32 = tf.keras.layers.Dense(32, activation='sigmoid')
         self.dense_sigmoid_positive_1 = tf.keras.layers.Dense(1, activation='sigmoid')
-        self.dense_sigmoid_negitive_32 = tf.keras.layers.Dense(32, activation='sigmoid')
-        self.dense_sigmoid_negitive_1 = tf.keras.layers.Dense(1, activation='sigmoid')
+
+        self.negative_batch_norm = tf.keras.layers.BatchNormalization()
+        self.dense_sigmoid_negative_32 = tf.keras.layers.Dense(32, activation='sigmoid')
+        self.dense_sigmoid_negative_1 = tf.keras.layers.Dense(1, activation='sigmoid')
         self.dot = tf.keras.layers.Dot(axes=(1, 1))
         self.acc = tf.keras.metrics.Accuracy(name='accuracy')
         self.auc = tf.keras.metrics.AUC(name='AUC')
         self.pr = tf.keras.metrics.AUC(curve='PR', name='PR')
     
     def call(self, inputs, alpha=0.5):
-        negtive_movie_t1, postive_movie_t0, movie_hidden_state, y_true, y_pred = inputs
+        negative_movie_t1, postive_movie_t0, movie_hidden_state, y_true, y_pred = inputs
         positive_concat_layer = tf.keras.layers.concatenate([movie_hidden_state[:, 0:4, :], postive_movie_t0[:, 1:5, :]])
+        positive_concat_layer = self.positive_batch_norm(positive_concat_layer)
         positive_concat_layer = self.dense_sigmoid_positive_32(positive_concat_layer)
-        positive_loss = self.dense_sigmoid_positive_1(positive_concat_layer)
+        positive_loss = - tf.math.log(self.dense_sigmoid_positive_1(positive_concat_layer))
         
-        negtive_concat_layer = tf.keras.layers.concatenate([movie_hidden_state[:, 0:4, :], negtive_movie_t1[:, :, :]])
-        negtive_concat_layer = self.dense_sigmoid_negitive_32(negtive_concat_layer)
-        negtive_loss = self.dense_sigmoid_negitive_1(negtive_concat_layer)
-        # auxiliary_loss_values shape (batch_size, 4, 1)
-        auxiliary_loss_values = positive_loss + negtive_loss
+        negative_concat_layer = tf.keras.layers.concatenate([movie_hidden_state[:, 0:4, :], negative_movie_t1])
+        negative_concat_layer = self.negative_batch_norm(negative_concat_layer)
+        negative_concat_layer = self.dense_sigmoid_negative_32(negative_concat_layer)
+        negative_loss = - tf.math.log(1 - self.dense_sigmoid_negative_1(negative_concat_layer))
+
+        auxiliary_loss = alpha * tf.reduce_mean(positive_loss + negative_loss)
         
-        final_loss = tf.keras.losses.binary_crossentropy(y_true, y_pred) + alpha * tf.reduce_mean(tf.reduce_sum(auxiliary_loss_values, axis=1))
-        self.add_loss(final_loss, inputs=True)
-        self.acc.update_state(y_true, y_pred)
+        loss = tf.keras.losses.binary_crossentropy(y_true, y_pred) + auxiliary_loss
+        self.add_loss(loss, inputs=True)
+        self.acc.update_state(y_true == 1,   y_pred > 0.5)
         self.auc.update_state(y_true, y_pred)
         self.pr.update_state(y_true, y_pred)
-        # self.add_metric(self.auc.result(), aggregation="mean", name="auc")
-        return final_loss
+        return loss

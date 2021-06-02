@@ -63,8 +63,8 @@ output_layer = tf.keras.layers.Dense(64)(output_layer)
 output_layer = tf.keras.layers.PReLU()(output_layer)
 y_pred = tf.keras.layers.Dense(1, activation='sigmoid')(output_layer)
 
-auxiliary_loss_value = AuxiliaryLossLayer()([negtive_movie_emb_layer, user_behaviors_emb_layer, user_behaviors_hidden_state, y_true, y_pred])
+loss = AuxiliaryLossLayer()([negtive_movie_emb_layer, user_behaviors_emb_layer, user_behaviors_hidden_state, y_true, y_pred])
 
-model = tf.keras.Model(inputs=inputs, outputs=[y_pred, auxiliary_loss_value])
+model = tf.keras.Model(inputs=inputs, outputs=[y_pred, loss])
 
 compile_train_evaluate_and_showcase(model, dien=True)

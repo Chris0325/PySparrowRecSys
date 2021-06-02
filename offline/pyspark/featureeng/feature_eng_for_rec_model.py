@@ -118,7 +118,7 @@ def splitAndSaveTrainingTestSamples(samplesWithUserFeatures, file_path):
     smallSamples = samplesWithUserFeatures.sample(0.1)
     training, test = smallSamples.randomSplit((0.8, 0.2))
     training.repartition(1).write.option("header", "true").mode('overwrite').csv(os.path.join(file_path, 'trainingSamples'))
-    test.repartition(1).write.option("header", "true").mode('overwrite').csv(os.path.join(file_path, '/testSamples'))
+    test.repartition(1).write.option("header", "true").mode('overwrite').csv(os.path.join(file_path, 'testSamples'))
 
 
 def splitAndSaveTrainingTestSamplesByTimeStamp(samplesWithUserFeatures, file_path):

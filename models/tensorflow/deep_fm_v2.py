@@ -39,7 +39,7 @@ second_order_deep_columns = tf.keras.layers.Reshape((-1, 64))(second_order_deep_
 # second_order_fm_feature shape (batch_size, 11, 64)
 second_order_fm_feature = tf.keras.layers.concatenate(second_order_cat_columns + [second_order_deep_columns], axis=1)
 
-deep_feature = tf.keras.layers.flatten(second_order_fm_feature)
+deep_feature = tf.keras.layers.Flatten()(second_order_fm_feature)
 deep_feature = tf.keras.layers.Dense(32, activation='relu')(deep_feature)
 deep_feature = tf.keras.layers.Dense(16, activation='relu')(deep_feature)
 
